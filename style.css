@@ -176,6 +176,22 @@ label{ display:flex; flex-direction:column; gap:.35rem; font-weight:700; }
 .app-main{ padding:1rem; }
 .products h2{ margin:.2rem 0 .8rem; }
 .product-grid{ display:grid; gap:1rem; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); }
+/* Grid layout: 2 cards per row on small screens */
+.product-list, .products, .grid{
+  display:grid !important;
+  grid-template-columns:repeat(2, 1fr) !important;
+  gap:10px !important;
+}
+.product-list .card,
+.products .card,
+.grid .card,
+.product-card{
+  width:100% !important;
+  max-width:none !important;
+  margin:0 !important;
+  border-radius:16px !important;
+  padding:10px !important;
+}
 
 /* Product filters toolbar */
 .products-header{ display:flex; align-items:center; justify-content:space-between; gap:1rem; }
