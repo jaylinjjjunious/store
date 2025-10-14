@@ -500,6 +500,84 @@ label{ display:flex; flex-direction:column; gap:.35rem; font-weight:700; }
   }
 }
 
+/* ===== MOBILE FIX (<=599px) — filter under carousel + true 2-col grid + no side scroll ===== */
+@media (max-width:599px){
+
+  /* 0) Remove any horizontal overflow coming from 100vw + padding, images, etc. */
+  html, body{ width:100% !important; max-width:100% !important; overflow-x:hidden !important; }
+  *, *::before, *::after{ box-sizing:border-box; }
+  img, video, canvas{ max-width:100% !important; height:auto !important; display:block !important; }
+  [style*="width:100vw"]{ width:100% !important; }
+
+  /* 1) Products section flows vertically; filter comes BEFORE the grid */
+  /* Try common wrappers used in your markup */
+  #products, .products-section, .products-wrapper{
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:stretch !important;
+    gap:0 !important;
+  }
+
+  /* Order the pieces explicitly (if they share a wrapper) */
+  .category-filter{ order: 1 !important; }
+  .product-list, .products, .grid{ order: 2 !important; }
+
+  /* Keep the filter immediately under the carousel */
+  .category-filter{
+    position:static !important;
+    float:none !important;
+    clear:both !important;            /* starts on its own line */
+    display:flex !important;
+    flex-direction:row !important;
+    flex-wrap:nowrap !important;
+    justify-content:flex-end !important;
+    align-items:center !important;
+    gap:8px !important;
+    margin:8px 0 12px 0 !important;   /* right under carousel */
+    padding:0 !important;
+    overflow-x:auto !important; -webkit-overflow-scrolling:touch !important;
+  }
+  .category-filter::-webkit-scrollbar{ display:none; }
+  .category-filter .cat-btn{
+    border-radius:9999px !important;
+    height:32px !important; padding:0 12px !important; white-space:nowrap !important;
+  }
+
+  /* 2) Centered, real 2-column grid; children can shrink inside their cells */
+  .product-list, .products, .grid{
+    display:grid !important;
+    grid-template-columns:repeat(2, minmax(0, 1fr)) !important;
+    gap:10px !important;
+    justify-content:center !important;   /* centers the grid if parent is wider */
+    align-items:stretch !important;
+    margin:0 !important;
+    padding:0 !important;
+    max-width:100% !important;
+  }
+  .product-list > *, .products > *, .grid > *{ min-width:0 !important; }
+
+  /* Cards must not force fixed widths/margins */
+  .product-list .card, .products .card, .grid .card, .product-card{
+    width:100% !important;
+    max-width:none !important;
+    margin:0 !important;
+    box-sizing:border-box !important;
+    overflow:hidden !important;
+  }
+
+  /* 3) Carousel: keep short, in-viewport, and not wider than screen */
+  .carousel{
+    width:100% !important;
+  height:160px !important;
+  max-height:160px !important;
+  margin:6px 0 8px !important;
+  overflow:hidden !important;
+}
+.carousel img, .carousel video{
+  width:100% !important; height:100% !important; object-fit:cover !important;
+}
+}
+
 /* ===== MOBILE HOTFIX (<=599px) ===== */
 @media (max-width:599px){
 
@@ -687,5 +765,83 @@ label{ display:flex; flex-direction:column; gap:.35rem; font-weight:700; }
   .product-list .card, .products .card, .grid .card, .product-card{
     width:100% !important; max-width:none !important;
     margin:0 !important; box-sizing:border-box !important; overflow:hidden !important;
+  }
+}
+
+/* ===== MOBILE FIX (<=599px) — filter under carousel + true 2-col grid + no side scroll ===== */
+@media (max-width:599px){
+
+  /* 0) Remove any horizontal overflow coming from 100vw + padding, images, etc. */
+  html, body{ width:100% !important; max-width:100% !important; overflow-x:hidden !important; }
+  *, *::before, *::after{ box-sizing:border-box; }
+  img, video, canvas{ max-width:100% !important; height:auto !important; display:block !important; }
+  [style*="width:100vw"]{ width:100% !important; }
+
+  /* 1) Products section flows vertically; filter comes BEFORE the grid */
+  /* Try common wrappers used in your markup */
+  #products, .products-section, .products-wrapper{
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:stretch !important;
+    gap:0 !important;
+  }
+
+  /* Order the pieces explicitly (if they share a wrapper) */
+  .category-filter{ order: 1 !important; }
+  .product-list, .products, .grid{ order: 2 !important; }
+
+  /* Keep the filter immediately under the carousel */
+  .category-filter{
+    position:static !important;
+    float:none !important;
+    clear:both !important;            /* starts on its own line */
+    display:flex !important;
+    flex-direction:row !important;
+    flex-wrap:nowrap !important;
+    justify-content:flex-end !important;
+    align-items:center !important;
+    gap:8px !important;
+    margin:8px 0 12px 0 !important;   /* right under carousel */
+    padding:0 !important;
+    overflow-x:auto !important; -webkit-overflow-scrolling:touch !important;
+  }
+  .category-filter::-webkit-scrollbar{ display:none; }
+  .category-filter .cat-btn{
+    border-radius:9999px !important;
+    height:32px !important; padding:0 12px !important; white-space:nowrap !important;
+  }
+
+  /* 2) Centered, real 2-column grid; children can shrink inside their cells */
+  .product-list, .products, .grid{
+    display:grid !important;
+    grid-template-columns:repeat(2, minmax(0, 1fr)) !important;
+    gap:10px !important;
+    justify-content:center !important;   /* centers the grid if parent is wider */
+    align-items:stretch !important;
+    margin:0 !important;
+    padding:0 !important;
+    max-width:100% !important;
+  }
+  .product-list > *, .products > *, .grid > *{ min-width:0 !important; }
+
+  /* Cards must not force fixed widths/margins */
+  .product-list .card, .products .card, .grid .card, .product-card{
+    width:100% !important;
+    max-width:none !important;
+    margin:0 !important;
+    box-sizing:border-box !important;
+    overflow:hidden !important;
+  }
+
+  /* 3) Carousel: keep short, in-viewport, and not wider than screen */
+  .carousel{
+    width:100% !important;
+    height:160px !important;
+    max-height:160px !important;
+    margin:6px 0 8px !important;
+    overflow:hidden !important;
+  }
+  .carousel img, .carousel video{
+    width:100% !important; height:100% !important; object-fit:cover !important;
   }
 }
