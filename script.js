@@ -1192,3 +1192,60 @@ function smokeTest(){
   }
   window.addEventListener('resize', ()=>{ if (isPhone()) run(); }, {passive:true});
 })();
+
+/* === MOBILE FIX v2 (handles nested containers) === */
+(function fixMobileFilterLayout(){
+  const isPhone = () => Math.min(window.innerWidth, window.innerHeight) <= 599;
+
+  function placeFilterBelowCarousel(){
+    const carousel = document.querySelector('.carousel');
+    const filter = document.querySelector('.category-filter');
+    if (!carousel || !filter) return;
+
+    const carouselWrapper = carousel.closest('.banner, .carousel-container, main, section') || carousel.parentElement;
+    if (carouselWrapper && isPhone()){
+      carouselWrapper.insertAdjacentElement('afterend', filter);
+    }
+  }
+
+  function enforceGrid(){
+    document.querySelectorAll('.product-list, .products, .grid').forEach(g=>{
+      g.style.display = 'grid';
+      g.style.gridTemplateColumns = 'repeat(2, minmax(0, 1fr))';
+      g.style.gap = '10px';
+      g.style.margin = '0';
+      g.style.padding = '0';
+      g.style.justifyContent = 'center';
+      g.style.alignItems = 'stretch';
+      g.style.maxWidth = '100%';
+      g.style.overflowX = 'hidden';
+    });
+    document.querySelectorAll('.product-list > *, .products > *, .grid > *').forEach(el=>{
+      el.style.minWidth = '0';
+    });
+    document.querySelectorAll('.product-card, .card').forEach(el=>{
+      el.style.width = '100%';
+      el.style.maxWidth = 'none';
+      el.style.margin = '0';
+      el.style.boxSizing = 'border-box';
+    });
+  }
+
+  function killHorizontalScroll(){
+    document.documentElement.style.overflowX = 'hidden';
+    document.body.style.overflowX = 'hidden';
+  }
+
+  function run(){
+    if (!isPhone()) return;
+    placeFilterBelowCarousel();
+    enforceGrid();
+    killHorizontalScroll();
+    console.log('[MobileFix] filter relocated below carousel');
+  }
+
+  if (document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', run, {once:true});
+  } else run();
+  window.addEventListener('resize', ()=>{ if (isPhone()) run(); }, {passive:true});
+})();
