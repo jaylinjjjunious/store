@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Student Store</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <!-- Header -->
+  <header class="app-header">
+    <div class="brand">
+      <h1>Student Store</h1>
+    </div>
+
+    <div class="searchbar">
+      <input id="searchInput" type="text" placeholder="Search products…"/>
+      <button id="searchBtn" class="btn">Search</button>
+    </div>
+
+    <div class="actions">
+      <button id="settingsBtn" class="btn" title="Settings">⚙️</button>
+      <button id="cartBtn" class="btn cart-button" title="Cart">🛒
+        <span id="cartCount" class="cart-count">0</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Carousel -->
+  <section class="carousel-wrap">
+    <div class="carousel" id="carousel">
+      <div class="slides" id="slides">
+        <div class="slide active">
+          <img src="https://images.unsplash.com/photo-1526312426976-593c2586bb47?q=80&w=1600&auto=format&fit=crop" alt="Welcome banner"/>
+          <div class="caption">Welcome to Student Store</div>
+        </div>
+        <div class="slide">
+          <img src="https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=1600&auto=format&fit=crop" alt="Snacks & Drinks"/>
+          <div class="caption">Snacks, Drinks, School Essentials</div>
+        </div>
+        <div class="slide">
+          <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=1600&auto=format&fit=crop" alt="Top Sellers"/>
+          <div class="caption">Top Sellers This Week</div>
+        </div>
+      </div>
+      <button class="cnav prev" id="prevSlide" aria-label="Previous">‹</button>
+      <button class="cnav next" id="nextSlide" aria-label="Next">›</button>
+      <div class="dots" id="dots"></div>
+    </div>
+  </section>
+
+  <!-- Products -->
+  <main class="app-main">
+    <section class="products">
+      <div class="products-header">
+        <h2>Products</h2>
+        <div id="productFilters" class="product-filters" aria-label="Product filters"></div>
+      </div>
+      <div id="productGrid" class="product-grid"></div>
+    </section>
+  </main>
+
+  <footer class="app-footer">© <span id="year"></span> Student Store</footer>
+
+  <!-- Product Detail Modal (mini-page) -->
+  <div class="modal" id="productModal" aria-hidden="true">
+    <div class="backdrop" data-close="productModal"></div>
+    <div class="modal-body">
+      <button class="modal-close" data-close="productModal" title="Close">✕</button>
+      <div class="product-detail" id="productDetail">
+        <div class="pd-image"><img id="pdImg" alt="product"/></div>
+        <div class="pd-right">
+          <div id="pdStockBadge" class="stock-badge">Stock: 0</div>
+          <h3 id="pdName">Product</h3>
+          <p id="pdDesc">Description</p>
+          <div class="price-row">
+            <strong id="pdPrice">$0.00</strong>
+          </div>
+          <div class="qty-controls">
+            <button id="pdMinus" class="btn" aria-label="Decrease">-</button>
+            <div id="pdQty" class="qty">1</div>
+            <button id="pdPlus" class="btn" aria-label="Increase">+</button>
+          </div>
+          <div class="actions">
+            <button id="pdAdd" class="btn primary">Add to cart</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cart Modal -->
+  <div class="modal" id="cartModal" aria-hidden="true">
+    <div class="backdrop" data-close="cartModal"></div>
+    <div class="modal-body cart">
+      <button class="modal-close" data-close="cartModal" title="Close">✕</button>
+      <h3>Your Cart</h3>
+      <div id="cartItems" class="cart-items"></div>
+      <div class="cart-summary">
+        <div class="cart-totals">
+          <div><span class="muted">Subtotal:</span> <span id="cartSubtotal">$0.00</span></div>
+          <div><span class="muted">Discount:</span> <span id="cartDiscount">$0.00</span></div>
+          <div><strong>Total:</strong> <span id="cartTotal">$0.00</span></div>
+        </div>
+        <div class="actions">
+          <button id="checkoutBtn" class="btn primary">Checkout</button>
+        </div>
+      </div>
+      <div class="promo-row">
+        <input id="promoInput" type="text" placeholder="Promo code"/>
+        <button id="applyPromoBtn" class="btn">Apply</button>
+  <div id="promoMsgWrap" class="promo-msg-wrap">
+          <span id="promoMsg" class="muted"></span>
+          <div id="promoPill" class="promo-pill hidden">
+            <span id="promoPillText"></span>
+            <button id="clearPromoBtn" class="btn" title="Clear promo">✕</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Order Form Modal -->
+  <div class="modal" id="orderFormModal" aria-hidden="true">
+    <div class="backdrop" data-close="orderFormModal"></div>
+    <div class="modal-body">
+      <button class="modal-close" data-close="orderFormModal" title="Close">✕</button>
+      <h3>Pickup Details</h3>
+      <label>Full Name
+        <input id="orderName" type="text" placeholder="Your name"/>
+      </label>
+      <label>Where are you on campus?
+        <input id="orderLocation" type="text" placeholder="Building / Room / Area"/>
+      </label>
+      <div class="actions">
+        <button id="placeOrderBtn" class="btn primary">Place Order</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings / Admin Modal -->
+  <div class="modal" id="settingsModal" aria-hidden="true">
+    <div class="backdrop" data-close="settingsModal"></div>
+    <div class="modal-body">
+      <button class="modal-close" data-close="settingsModal" title="Close">✕</button>
+
+      <div class="modal-head">
+        <h3>Settings</h3>
+        <div class="tabs" id="settingsTabs">
+          <button class="tab active" data-tab="general">General</button>
+          <button class="tab" data-tab="admin">Admin</button>
+        </div>
+      </div>
+
+      <!-- General Tab -->
+      <section class="tab-panel" id="tab-general">
+        <div class="panel">
+          <h4>Appearance</h4>
+          <div class="subtabs">
+            <button id="themeToggleBtn" class="btn">Toggle theme</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Admin Tab -->
+      <section class="tab-panel hidden" id="tab-admin">
+        <!-- LOCKED VIEW -->
+        <div id="adminLocked" class="panel">
+          <h4>Admin Access</h4>
+          <p class="muted">Enter the admin password to view this section.</p>
+          <label>Password
+            <input id="adminPass" type="password" placeholder="••••••••"/>
+          </label>
+          <div class="actions">
+            <button id="unlockAdminBtn" class="btn primary">Unlock</button>
+          </div>
+        </div>
+
+        <!-- UNLOCKED CONTENT -->
+        <div id="adminContent" class="hidden">
+          <!-- Admin sub-tabs -->
+          <div id="adminSubnav" class="tabs admin-subnav">
+            <button class="tab active" data-admin-tab="orders">Orders</button>
+
+            <div id="inventoryTabWrap" class="inventory-tab-wrap">
+              <button class="tab" id="inventoryTabBtn" data-admin-tab="inventory">Inventory</button>
+              <button class="caret-btn" id="invSwitchBtn" aria-label="Inventory menu" aria-haspopup="true" aria-expanded="false">▾</button>
+              <div id="invSwitchMenu" class="dropdown-menu hidden">
+                <button data-invview="table">Inventory</button>
+                <button data-invview="promos">Promos / Bundles</button>
+                <button data-invview="photos">Add Photos</button>
+              </div>
+              
+            </div>
+
+            <button class="tab" data-admin-tab="analytics">Analytics</button>
+          </div>
+
+          <!-- Orders panel -->
+          <section id="admin-orders" class="admin-tab-panel">
+            <div class="panel">
+              <div class="orders-header">
+                <h4>Orders</h4>
+                <div class="dropdown">
+                  <button id="ordersDropdownBtn" class="btn">Active Orders ▾</button>
+                  <div id="ordersDropdownMenu" class="dropdown-menu hidden">
+                    <button data-orders-view="active">Active Orders</button>
+                    <button data-orders-view="history">Order History</button>
+                  </div>
+                </div>
+                <div class="actions">
+                  <button id="clearOldHistoryBtn" class="btn">Auto-clear >3 days</button>
+                  <button id="manualClearHistoryBtn" class="btn danger">Clear All History</button>
+                </div>
+              </div>
+              <div id="ordersList" class="orders-list"></div>
+            </div>
+          </section>
+          <!-- Photos admin (separate page with back button) -->
+          <section id="admin-photos" class="admin-tab-panel hidden">
+            <div class="panel">
+              <div class="panel-head">
+                <h4>Photos — Upload / Assign</h4>
+                <div>
+                  <button id="photosBackBtn" class="btn">← Back to Settings</button>
+                </div>
+              </div>
+              <p class="muted">Choose a product and upload an image to assign to its card. Images are stored as data URLs in localStorage.</p>
+              <label>Product
+                <select id="photoProductSel"></select>
+                <!-- Accessible custom dropdown fallback (hidden by default). Will be shown when browser ignores option styling -->
+                <div class="custom-select" id="photoCustomSelect" aria-hidden="true">
+                  <button id="photoSelectBtn" class="cs-btn" aria-haspopup="listbox" aria-expanded="false" type="button">Select product</button>
+                  <ul id="photoSelectList" class="cs-list hidden" role="listbox" tabindex="-1"></ul>
+                </div>
+              </label>
+              <label>Image file
+                <input id="photoFileInput" type="file" accept="image/*" />
+              </label>
+              <div class="photo-preview">
+                <img id="photoPreview" src="" alt="preview"/>
+              </div>
+              <div class="actions">
+                <button id="savePhotoBtn" class="btn primary">Save Photo</button>
+              </div>
+
+              <hr />
+              <h4>Carousel Slides</h4>
+              <p class="muted">Edit the main carousel slides shown on the homepage.</p>
+              <label>Slide
+                <select id="carouselSlideSel"></select>
+              </label>
+              <label>Image file
+                <input id="carouselFileInput" type="file" accept="image/*" />
+              </label>
+              <label>Caption
+                <input id="carouselCaptionInput" type="text" placeholder="Slide caption" />
+              </label>
+              <div class="photo-preview">
+                <img id="carouselPreview" src="" alt="carousel preview"/>
+              </div>
+              <div class="actions">
+                <button id="saveCarouselSlideBtn" class="btn primary">Save Slide</button>
+              </div>
+            </div>
+          </section>
+
+          <!-- Inventory panel (main table) -->
+          <section id="admin-inventory" class="admin-tab-panel hidden">
+            <div class="panel">
+              <div class="orders-header"><h4>Inventory</h4></div>
+              <div id="inventoryPanel">
+                <div class="table-wrap">
+                  <table class="inv-table" id="invTable">
+                    <thead>
+                      <tr>
+                        <th>Item</th>
+                        <th>Stock</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody id="invBody"></tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Promos / Bundles (placeholder; editable creators live here) -->
+              <div id="promosPanel" class="hidden">
+                <div class="panel">
+                  <h4>Promos / Bundles</h4>
+                  <p class="muted">Create promo codes and product bundles here.</p>
+                  <div class="promo-creator">
+                    <label>Promo code
+                      <input id="promoCodeInput" type="text" placeholder="e.g., STUDENT10"/>
+                    </label>
+                    <label>Type
+                      <select id="promoTypeSel">
+                        <option value="percent">percent</option>
+                        <option value="amount">amount</option>
+                      </select>
+                    </label>
+                    <label>Value
+                      <input id="promoValueInput" type="number" placeholder="10 for 10% or $10"/>
+                    </label>
+                    <div class="actions">
+                      <button id="addPromoBtn" class="btn">Add / Update Promo</button>
+                    </div>
+                    <div id="promosList" class="muted"></div>
+                  </div>
+
+                  <hr class="soft-rule"/>
+
+                  <div class="bundle-creator">
+                    <label>Bundle name
+                      <input id="bundleNameInput" type="text" placeholder="Study Kit"/>
+                    </label>
+                    <label>Product IDs (comma-separated)
+                      <input id="bundleIdsInput" type="text" placeholder="4,5,6"/>
+                    </label>
+                    <label>Bundle price
+                      <input id="bundlePriceInput" type="number" placeholder="9.99"/>
+                    </label>
+                    <div class="actions">
+                      <button id="addBundleBtn" class="btn">Add / Update Bundle</button>
+                    </div>
+                    <div id="bundlesList" class="muted"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Analytics -->
+          <section id="admin-analytics" class="admin-tab-panel hidden">
+            <div class="panel">
+              <h4>Analytics</h4>
+              <div class="kpi-grid">
+                <div class="kpi"><div class="kpi-label">Revenue</div><div id="kpiRevenue" class="kpi-value">$0.00</div></div>
+                <div class="kpi"><div class="kpi-label">Orders</div><div id="kpiOrders" class="kpi-value">0</div></div>
+                <div class="kpi"><div class="kpi-label">AOV</div><div id="kpiAOV" class="kpi-value">$0.00</div></div>
+                <div class="kpi"><div class="kpi-label">Top Product</div><div id="kpiTop" class="kpi-value">—</div></div>
+              </div>
+              <div class="panel" id="topProductsPanel">
+                <h5>Top Products (by units)</h5>
+                <ul id="topProductsList"></ul>
+              </div>
+            </div>
+          </section>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- Order Detail Modal (for admin clicking an order) -->
+  <div class="modal" id="orderDetailModal" aria-hidden="true">
+    <div class="backdrop" data-close="orderDetailModal"></div>
+    <div class="modal-body">
+      <button class="modal-close" data-close="orderDetailModal" title="Close">✕</button>
+      <h3>Order</h3>
+      <div id="orderDetailContent"></div>
+      <div class="actions">
+        <button id="markCompletedBtn" class="btn primary">Mark Completed</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast">✅ Order placed</div>
+
+  <script src="script.js"></script>
+</body>
+</html>
