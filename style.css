@@ -625,3 +625,67 @@ label{ display:flex; flex-direction:column; gap:.35rem; font-weight:700; }
     width:100% !important; height:100% !important; object-fit:cover !important; display:block !important;
   }
 }
+/* ===== MOBILE FIX (<=599px): filter right under carousel + no sideways scroll ===== */
+@media (max-width:599px){
+
+  /* A) Absolutely no horizontal scrolling */
+  html, body{ width:100% !important; max-width:100% !important; overflow-x:hidden !important; }
+  img, video, canvas{ max-width:100% !important; height:auto !important; display:block !important; }
+  .container, main, section, .carousel, .category-filter, .product-list, .products, .grid, .product-card, .card{
+    max-width:100% !important; overflow-x:hidden !important;
+  }
+  /* Anything using 100vw can force side-scroll when there's padding - neutralize it on mobile */
+  *[style*="width:100vw"]{ width:100% !important; }
+
+  /* B) Carousel: keep short and inside the viewport */
+  .carousel{
+    width:100% !important;
+    height:160px !important;
+    max-height:160px !important;
+    margin:6px 0 8px !important;   /* small bottom space for the filter */
+    overflow:hidden !important;
+  }
+  .carousel img, .carousel video{
+    width:100% !important; height:100% !important; object-fit:cover !important;
+  }
+
+  /* C) Put the CATEGORY FILTER immediately under the carousel */
+  .category-filter{
+    position:static !important;
+    float:none !important;
+    clear:both !important;          /* guarantees it starts on a new row */
+    display:flex !important;
+    flex-direction:row !important;
+    flex-wrap:nowrap !important;
+    justify-content:flex-end !important;  /* right-aligned row */
+    align-items:center !important;
+    gap:8px !important;
+    margin:0 0 10px 0 !important;   /* right under the carousel */
+    padding:0 !important;
+    overflow-x:auto !important; -webkit-overflow-scrolling:touch !important;
+  }
+  /* If filter is directly after carousel, ensure it still gets spacing */
+  .carousel + .category-filter{ margin-top:0 !important; }
+  .category-filter::-webkit-scrollbar{ display:none; }
+  .category-filter .cat-btn{
+    border-radius:9999px !important;
+    height:32px !important; padding:0 12px !important; white-space:nowrap !important;
+  }
+
+  /* D) Product GRID: true 2 columns, no sideways scroll */
+  .product-list, .products, .grid{
+    display:grid !important;
+    grid-template-columns:repeat(2, minmax(0,1fr)) !important;
+    gap:10px !important;
+    margin:0 !important;
+    padding:0 !important;
+  }
+  /* Grid children must be allowed to shrink within column */
+  .product-list > *, .products > *, .grid > *{ min-width:0 !important; }
+
+  /* Cards must not impose fixed widths or margins */
+  .product-list .card, .products .card, .grid .card, .product-card{
+    width:100% !important; max-width:none !important;
+    margin:0 !important; box-sizing:border-box !important; overflow:hidden !important;
+  }
+}
