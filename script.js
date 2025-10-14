@@ -1249,3 +1249,121 @@ function smokeTest(){
   } else run();
   window.addEventListener('resize', ()=>{ if (isPhone()) run(); }, {passive:true});
 })();
+
+/* ====== MOBILE LAYOUT FIX (robust, DOM-agnostic) ====== */
+(function mobileLayoutFix(){
+  const isPhone = () => Math.min(window.innerWidth, window.innerHeight) <= 599;
+
+  // 1) Find key nodes safely (works even if classes differ slightly)
+  function getNodes(){
+    const carouselWrap = document.querySelector('section.carousel-wrap') || document.querySelector('.carousel-wrap') || document.querySelector('.banner, .hero');
+    const filter = document.querySelector('.category-filter') || document.querySelector('[data-role=\"category-filter\"]');
+    // common grid wrappers used in your project
+    const grid = document.querySelector('.product-list, .products, .grid, .product-grid, #productsGrid');
+    return {carouselWrap, filter, grid};
+  }
+
+  // 2) Kill sideways scroll and clamp over-wide children
+  function stopSideScroll(){
+    document.documentElement.style.overflowX = 'hidden';
+    document.body.style.overflowX = 'hidden';
+    // media fit
+    document.querySelectorAll('img,video,canvas').forEach(el=>{
+      el.style.maxWidth = '100%';
+      el.style.height = 'auto';
+      el.style.display = 'block';
+    });
+    // any element wider than viewport => clamp
+    const vw = document.documentElement.clientWidth;
+    let culprit = null;
+    document.querySelectorAll('body *').forEach(el=>{
+      const r = el.getBoundingClientRect();
+      if (!culprit && r.width > vw + 1) culprit = el;
+    });
+    if (culprit){
+      culprit.style.maxWidth = '100%';
+      culprit.style.width = '100%';
+      culprit.style.overflowX = 'hidden';
+      culprit.setAttribute('data-mobile-overflow-fixed','1');
+    }
+  }
+
+  // 3) Place filter **directly after** the carousel section on phones
+  function placeFilterBelowCarousel(carouselWrap, filter){
+    if (!carouselWrap || !filter) return;
+    const after = carouselWrap.nextElementSibling;
+    if (after !== filter){
+      carouselWrap.insertAdjacentElement('afterend', filter);
+    }
+  }
+
+  // 4) Enforce a **true 2-column grid** on phones only
+  function enforceTwoCol(grid){
+    if (!grid) return;
+    grid.style.display = 'grid';
+    grid.style.gridTemplateColumns = 'repeat(2, minmax(0, 1fr))';
+    grid.style.gap = '10px';
+    grid.style.margin = '0';
+    grid.style.padding = '0';
+    grid.style.maxWidth = '100%';
+    grid.style.justifyContent = 'center';
+    grid.style.alignItems = 'stretch';
+    grid.style.overflowX = 'hidden';
+    grid.setAttribute('data-mobile-grid','2col');
+
+    // children must be allowed to shrink
+    grid.querySelectorAll(':scope > *').forEach(ch => ch.style.minWidth = '0');
+    grid.querySelectorAll('.product-card, .card').forEach(card=>{
+      card.style.width = '100%';
+      card.style.maxWidth = 'none';
+      card.style.margin = '0';
+      card.style.boxSizing = 'border-box';
+      card.style.overflow = 'hidden';
+    });
+  }
+
+  // 5) Shorten carousel on phones so products appear immediately
+  function capCarouselHeight(){
+    const c = document.querySelector('.carousel');
+    if (!c) return;
+    c.style.width = '100%';
+    c.style.height = '160px';
+    c.style.maxHeight = '160px';
+    c.style.overflow = 'hidden';
+    const media = c.querySelector('img,video');
+    if (media){
+      media.style.width = '100%';
+      media.style.height = '100%';
+      media.style.objectFit = 'cover';
+      media.style.display = 'block';
+    }
+  }
+
+  // 6) Small status badge so we can confirm (will remove after)
+  function showBadge(ok){
+    let b = document.getElementById('mobile-debug-badge');
+    if (!b){
+      b = document.createElement('div');
+      b.id = 'mobile-debug-badge';
+      b.style.cssText = 'position:fixed;z-index:9999;right:8px;bottom:8px;padding:6px 8px;border-radius:8px;background:rgba(0,0,0,.5);color:#fff;font:600 12px/1.2 system-ui';
+      document.body.appendChild(b);
+    }
+    b.textContent = `w:${window.innerWidth}px | filterUnderCarousel:${ok}`;
+  }
+
+  function run(){
+    if (!isPhone()) return;
+    const {carouselWrap, filter, grid} = getNodes();
+    stopSideScroll();
+    placeFilterBelowCarousel(carouselWrap, filter);
+    enforceTwoCol(grid);
+    capCarouselHeight();
+    const ok = !!(carouselWrap && filter && carouselWrap.nextElementSibling === filter);
+    showBadge(ok);
+  }
+
+  if (document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', run, {once:true});
+  } else run();
+  window.addEventListener('resize', ()=>{ if (isPhone()) run(); }, {passive:true});
+})();
