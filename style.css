@@ -500,6 +500,20 @@ label{ display:flex; flex-direction:column; gap:.35rem; font-weight:700; }
   }
 }
 
+/* === MOBILE BACKSTOP (<=599px): filter under carousel; no side scroll === */
+@media (max-width:599px){
+  html,body{overflow-x:hidden !important; max-width:100% !important;}
+  .carousel{width:100% !important; height:160px !important; max-height:160px !important; overflow:hidden !important; margin:6px 0 8px !important;}
+  .carousel img,.carousel video{width:100% !important;height:100% !important;object-fit:cover !important;display:block !important;}
+  .category-filter{display:flex !important;flex-wrap:nowrap !important;justify-content:flex-end !important;gap:8px !important;margin:0 0 10px 0 !important;overflow-x:auto !important;-webkit-overflow-scrolling:touch !important;}
+  .category-filter::-webkit-scrollbar{display:none;}
+  .product-list,.products,.grid{display:grid !important;grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:10px !important;margin:0 !important;padding:0 !important;max-width:100% !important;}
+  .product-list>* , .products>* , .grid>* {min-width:0 !important;}
+  .product-list .card,.products .card,.grid .card,.product-card{width:100% !important;max-width:none !important;margin:0 !important;box-sizing:border-box !important;overflow:hidden !important;}
+  /* If the filter isn’t a direct sibling in markup, JS moves it; CSS keeps spacing consistent */
+  .carousel + .category-filter{margin-top:0 !important;}
+}
+
 /* ===== MOBILE FIX (<=599px) — filter under carousel + true 2-col grid + no side scroll ===== */
 @media (max-width:599px){
 

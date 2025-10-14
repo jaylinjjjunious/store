@@ -1099,3 +1099,96 @@ function smokeTest(){
   }
   return issues;
 }
+
+/* === MOBILE DIAGNOSTIC + FIX (<=599px) === */
+(function initMobileLayoutFix(){
+  const isPhone = () => Math.min(window.innerWidth, window.innerHeight) <= 599;
+  function overflowCulprit(){
+    // Find first element wider than viewport
+    const vw = document.documentElement.clientWidth;
+    let culprit = null;
+    document.querySelectorAll('body *').forEach(el=>{
+      const r = el.getBoundingClientRect();
+      if (!culprit && r.width > vw + 1) culprit = el;
+    });
+    return culprit;
+  }
+  function ensureFilterUnderCarousel(){
+    const filter = document.querySelector('.category-filter');
+    const carousel = document.querySelector('.carousel');
+    if (isPhone() && filter && carousel){
+      // If filter is not immediately after carousel, move it there (phones only)
+      const next = carousel.nextElementSibling;
+      if (next !== filter) {
+        carousel.insertAdjacentElement('afterend', filter);
+      }
+    }
+  }
+  function killHorizontalScroll(){
+    // Guard against 100vw + padding and oversized children
+    document.documentElement.style.overflowX = 'hidden';
+    document.body.style.overflowX = 'hidden';
+    document.querySelectorAll('img,video,canvas').forEach(el=>{
+      el.style.maxWidth = '100%';
+      el.style.height = 'auto';
+      el.style.display = 'block';
+    });
+    document.querySelectorAll('.product-list, .products, .grid, .product-card, .card, .carousel, .category-filter, main, section, .container')
+      .forEach(el=>{
+        el.style.maxWidth = '100%';
+        el.style.overflowX = 'hidden';
+      });
+    // If some element is still wider, shrink it
+    const culprit = overflowCulprit();
+    if (culprit){
+      culprit.style.maxWidth = '100%';
+      culprit.style.width = '100%';
+    }
+  }
+  function makeTwoColGrid(){
+    const grids = document.querySelectorAll('.product-list, .products, .grid');
+    grids.forEach(g=>{
+      g.style.display = 'grid';
+      g.style.gridTemplateColumns = 'repeat(2, minmax(0, 1fr))';
+      g.style.gap = '10px';
+      g.style.margin = '0';
+      g.style.padding = '0';
+    });
+    document.querySelectorAll('.product-list > *, .products > *, .grid > *').forEach(ch=>{
+      ch.style.minWidth = '0';
+    });
+    document.querySelectorAll('.product-list .card, .products .card, .grid .card, .product-card').forEach(card=>{
+      card.style.width = '100%';
+      card.style.maxWidth = 'none';
+      card.style.margin = '0';
+      card.style.boxSizing = 'border-box';
+      card.style.overflow = 'hidden';
+    });
+  }
+  function addDebugBadge(){
+    if (!isPhone()) return;
+    if (document.getElementById('mobile-debug-badge')) return;
+    const b = document.createElement('div');
+    b.id = 'mobile-debug-badge';
+    b.style.cssText = 'position:fixed;z-index:9999;right:8px;bottom:8px;padding:6px 8px;border-radius:8px;background:rgba(0,0,0,.5);color:#fff;font:600 12px/1.2 system-ui';
+    const filter = !!document.querySelector('.carousel + .category-filter');
+    b.textContent = `w:${window.innerWidth}px | filterUnderCarousel:${filter}`;
+    document.body.appendChild(b);
+    window.addEventListener('resize', ()=>{ b.textContent = `w:${window.innerWidth}px | filterUnderCarousel:${!!document.querySelector('.carousel + .category-filter')}`; });
+  }
+
+  function run(){
+    if (!isPhone()) return;
+    ensureFilterUnderCarousel(); // place filter just under carousel (phones only)
+    killHorizontalScroll();      // stop side-scroll
+    makeTwoColGrid();            // enforce true 2-col layout
+    addDebugBadge();             // tiny on-screen status (remove later)
+  }
+
+  if (document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', run, {once:true});
+  } else {
+    run();
+  }
+  window.addEventListener('resize', ()=>{ if (isPhone()) run(); }, {passive:true});
+})();
