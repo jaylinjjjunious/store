@@ -604,3 +604,138 @@ label{ display:flex; flex-direction:column; gap:.35rem; font-weight:700; }
 .product-list .card,
 .products .card,
 .grid .card{ box-sizing:border-box !important; }
+/* ===== FINAL RESPONSIVE OVERRIDES (safe, non-destructive) ===== */
+
+/* Reset any floats/blocks that collapse the grid */
+.product-list, .products, .grid{ float:none !important; }
+
+/* Desktop: 3-up */
+@media (min-width: 1024px){
+  .product-list, .products, .grid{
+    display:grid !important;
+    grid-template-columns: repeat(3, minmax(260px,1fr)) !important;
+    gap:16px !important;
+    align-items:stretch !important;
+  }
+  .product-list .card, .products .card, .grid .card, .product-card{
+    width:100% !important; max-width:none !important; margin:0 !important;
+  }
+}
+
+/* Tablet: 2-up */
+@media (min-width: 600px) and (max-width: 1023px){
+  .product-list, .products, .grid{
+    display:grid !important;
+    grid-template-columns: repeat(2, minmax(240px,1fr)) !important;
+    gap:14px !important;
+  }
+  .product-list .card, .products .card, .grid .card, .product-card{
+    width:100% !important; max-width:none !important; margin:0 !important;
+  }
+}
+
+/* Phone: force 2-up; cap carousel; stable images */
+@media (max-width: 599px){
+  .product-list, .products, .grid{
+    display:grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap:10px !important;
+  }
+  .product-list .card, .products .card, .grid .card, .product-card{
+    width:100% !important; max-width:none !important; margin:0 !important;
+    border-radius:14px !important; padding:10px !important;
+  }
+
+  /* If any rule makes cards fixed width, nullify it */
+  .product-list .card, .products .card, .grid .card, .product-card{
+    width:auto !important;
+  }
+
+  /* Thumbs consistent */
+  .card .thumb, .product-card .thumb{
+    width:100% !important; aspect-ratio: 4 / 3 !important;
+    border-radius:12px !important; overflow:hidden !important; margin-bottom:8px !important;
+  }
+  .card .thumb img, .product-card .thumb img{
+    width:100% !important; height:100% !important; object-fit:cover !important; display:block !important;
+  }
+
+  /* Carousel not giant on phones */
+  .carousel{ height: 180px !important; max-height: 180px !important; margin:8px 0 12px !important; overflow:hidden !important; }
+  .carousel img, .carousel video{ width:100% !important; height:100% !important; object-fit:cover !important; }
+
+  /* Category pills: single row, scroll if overflow */
+  .category-filter{
+    display:flex !important; flex-direction:row !important; gap:8px !important;
+    margin:8px 0 12px !important; overflow-x:auto !important; -webkit-overflow-scrolling:touch !important;
+  }
+  .category-filter::-webkit-scrollbar{ display:none; }
+}
+
+/* Safety: never let earlier CSS force display:block on grids */
+@media all{
+.product-list, .products, .grid{ display:grid !important; }
+}
+
+/* ===== HARDENED OVERRIDES (last wins) ===== */
+
+/* Never let earlier rules force block/float on the product grid */
+.product-list, .products, .grid{ float:none !important; }
+
+/* Desktop: 3-up */
+@media (min-width: 1024px){
+  .product-list, .products, .grid{
+    display:grid !important;
+    grid-template-columns:repeat(3, minmax(260px,1fr)) !important;
+    gap:16px !important;
+  }
+  .product-list .card, .products .card, .grid .card, .product-card{
+    width:100% !important; max-width:none !important; margin:0 !important;
+  }
+}
+
+/* Tablet: 2-up */
+@media (min-width: 600px) and (max-width: 1023px){
+  .product-list, .products, .grid{
+    display:grid !important;
+    grid-template-columns:repeat(2, minmax(240px,1fr)) !important;
+    gap:14px !important;
+  }
+  .product-list .card, .products .card, .grid .card, .product-card{
+    width:100% !important; max-width:none !important; margin:0 !important;
+  }
+}
+
+/* Phone: 2-up + stable images + shorter hero */
+@media (max-width: 599px){
+  .product-list, .products, .grid{
+    display:grid !important;
+    grid-template-columns:repeat(2, 1fr) !important;
+    gap:10px !important;
+  }
+  .product-list .card, .products .card, .grid .card, .product-card{
+    width:auto !important;
+    margin:0 !important; border-radius:14px !important; padding:10px !important;
+  }
+
+  /* Image area inside cards is consistent */
+  .card .thumb, .product-card .thumb{
+    width:100% !important;
+    aspect-ratio:4/3 !important;
+    overflow:hidden !important;
+    border-radius:12px !important;
+    margin-bottom:8px !important;
+  }
+  .card .thumb img, .product-card .thumb img{
+    width:100% !important; height:100% !important; object-fit:cover !important; display:block !important;
+  }
+
+  /* HERO/CAROUSEL: shorter on phones so products show */
+  .carousel{ height:180px !important; max-height:180px !important; margin:8px 0 12px !important; overflow:hidden !important; }
+  .carousel img, .carousel video{ width:100% !important; height:100% !important; object-fit:cover !important; }
+}
+
+/* Safety: force grid display if any earlier rule set block */
+@media all{
+  .product-list, .products, .grid{ display:grid !important; }
+}
