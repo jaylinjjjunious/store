@@ -561,9 +561,9 @@ label{ display:flex; flex-direction:column; gap:.35rem; font-weight:700; }
     margin-top:0;
   }
   .products-header{
-    flex-direction:column;
-    align-items:flex-start;
-    gap:.75rem;
+    flex-direction:column-reverse;
+    align-items:stretch;
+    gap:.65rem;
   }
   .product-filters{
     width:100%;
@@ -574,7 +574,8 @@ label{ display:flex; flex-direction:column; gap:.35rem; font-weight:700; }
     -webkit-overflow-scrolling:touch;
   }
   .products h2{
-    margin-bottom:.35rem;
+    margin:0;
+    align-self:flex-start;
   }
   .product-filters::-webkit-scrollbar{
     display:none;
