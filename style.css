@@ -561,16 +561,16 @@ label{ display:flex; flex-direction:column; gap:.35rem; font-weight:700; }
     margin-top:0;
     display:flex;
     flex-direction:column;
-    gap:.6rem;
+    gap:1rem;
   }
   .products-header{
     flex-direction:column-reverse;
     align-items:stretch;
-    gap:.65rem;
-    margin-bottom:.6rem;
+    gap:.75rem;
+    margin-bottom:1rem;
   }
   .product-grid{
-    margin-top:.5rem;
+    margin-top:1rem;
   }
   .product-filters{
     width:100%;
@@ -650,7 +650,7 @@ label{ display:flex; flex-direction:column; gap:.35rem; font-weight:700; }
   }
   .product-grid{
     grid-template-columns:1fr;
-    margin-top:.5rem;
+    margin-top:1rem;
   }
   .modal .modal-body{
     width:calc(100% - 1.5rem);
