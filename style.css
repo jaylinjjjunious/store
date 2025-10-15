@@ -684,3 +684,23 @@ label{ display:flex; flex-direction:column; gap:.35rem; font-weight:700; }
     width:100%;
   }
 }
+
+/* Admin panel scroll adjustments */
+.admin-tab-panel{
+  display:flex;
+  flex-direction:column;
+  max-height:68vh;
+}
+.admin-tab-panel:not(#admin-orders){
+  overflow-y:auto;
+}
+@media (max-width:680px){
+  .admin-tab-panel{
+    max-height:74vh;
+  }
+}
+@media (max-width:520px){
+  .admin-tab-panel{
+    max-height:78vh;
+  }
+}
