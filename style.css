@@ -191,6 +191,7 @@ label{ display:flex; flex-direction:column; gap:.35rem; font-weight:700; }
   grid-template-columns:auto 1fr;
   align-items:center;
   gap:1rem;
+  margin-bottom:1rem;
 }
 .product-filters{
   display:flex;
@@ -577,8 +578,7 @@ label{ display:flex; flex-direction:column; gap:.35rem; font-weight:700; }
       "heading";
     align-items:flex-start;
     gap:.75rem;
-    margin-bottom:0;
-    padding-bottom:0;
+    margin-bottom:1rem;
   }
   .product-grid{
     margin-top:0;
@@ -592,7 +592,6 @@ label{ display:flex; flex-direction:column; gap:.35rem; font-weight:700; }
     gap:.4rem;
     overflow-x:auto;
     -webkit-overflow-scrolling:touch;
-    margin-bottom:1rem;
   }
   .products h2{
     grid-area:heading;
