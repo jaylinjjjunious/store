@@ -646,6 +646,7 @@ label{ display:flex; flex-direction:column; gap:.35rem; font-weight:700; }
   }
   .product-grid{
     grid-template-columns:1fr;
+    margin-top:.5rem;
   }
   .modal .modal-body{
     width:calc(100% - 1.5rem);
