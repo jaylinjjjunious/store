@@ -144,7 +144,7 @@ label{ display:flex; flex-direction:column; gap:.35rem; font-weight:700; }
 /* =========================
    Carousel
    ========================= */
-.carousel-wrap{ padding:1rem; }
+.carousel-wrap{ padding:1.25rem; }
 .carousel{
   position:relative; max-width:980px; margin:0 auto; overflow:hidden;
   background:
@@ -182,7 +182,7 @@ label{ display:flex; flex-direction:column; gap:.35rem; font-weight:700; }
 /* =========================
    Products
    ========================= */
-.app-main{ padding:1rem; }
+.app-main{ padding:1.25rem; }
 .products h2{ margin:0; }
 .product-grid{ display:grid; gap:1rem; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); }
 /* Product filters toolbar */
@@ -302,7 +302,7 @@ label{ display:flex; flex-direction:column; gap:.35rem; font-weight:700; }
 .modal[aria-hidden="false"]{ display:block; }
 .modal .backdrop{ position:absolute; inset:0; background:rgba(0,0,0,.45); }
 .modal .modal-body{
-  position:relative; z-index:1; width:min(760px, calc(100% - 2rem)); margin:6vh auto 0; padding:1rem;
+  position:relative; z-index:1; width:min(760px, calc(100% - 2rem)); margin:6vh auto 0; padding:1.25rem;
   background:
     linear-gradient(180deg, var(--glass-top) 0%, rgba(255,255,255,.02) 28%, rgba(0,0,0,.10) 100%),
     var(--glass-fill-strong);
@@ -593,7 +593,7 @@ label{ display:flex; flex-direction:column; gap:.35rem; font-weight:700; }
   }
   .product-grid{
     margin-top:0;
-    grid-template-columns:repeat(2, minmax(0, 1fr));
+    grid-template-columns:repeat(2, minmax(170px, 1fr));
     max-width:600px;
     margin-inline:auto;
     gap:.5rem;
@@ -601,7 +601,7 @@ label{ display:flex; flex-direction:column; gap:.35rem; font-weight:700; }
   }
   .product-grid .card{
     width:100%;
-    padding:1rem;
+    padding:1.25rem;
   }
 }
 
@@ -610,7 +610,7 @@ label{ display:flex; flex-direction:column; gap:.35rem; font-weight:700; }
     font-size:1.05rem;
   }
   .product-grid{
-    grid-template-columns:repeat(2, minmax(0, 1fr));
+    grid-template-columns:repeat(2, minmax(170px, 1fr));
     max-width:600px;
     margin-inline:auto;
     gap:.5rem;
@@ -669,7 +669,7 @@ label{ display:flex; flex-direction:column; gap:.35rem; font-weight:700; }
     flex:1 1 48px;
   }
   .product-grid{
-    grid-template-columns:repeat(2, minmax(0, 1fr));
+    grid-template-columns:repeat(2, minmax(170px, 1fr));
     max-width:600px;
     margin-inline:auto;
     gap:.5rem;
