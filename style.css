@@ -567,7 +567,7 @@ label{ display:flex; flex-direction:column; gap:.35rem; font-weight:700; }
     padding-bottom:.75rem;
   }
   .product-grid{
-    margin-top:0;
+    margin-top:1.25rem;
   }
   .product-filters{
     order:-1;
@@ -647,7 +647,7 @@ label{ display:flex; flex-direction:column; gap:.35rem; font-weight:700; }
   }
   .product-grid{
     grid-template-columns:1fr;
-    margin-top:0;
+    margin-top:1.25rem;
   }
   .modal .modal-body{
     width:calc(100% - 1.5rem);
