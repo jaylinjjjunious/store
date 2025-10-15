@@ -184,7 +184,7 @@ label{ display:flex; flex-direction:column; gap:.35rem; font-weight:700; }
    ========================= */
 .app-main{ padding:1rem; }
 .products h2{ margin:0; }
-.product-grid{ display:grid; gap:1rem; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); }
+.product-grid{ display:grid; gap:1rem; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); justify-content:center; }
 /* Product filters toolbar */
 .products-header{
   display:flex;
@@ -593,8 +593,9 @@ label{ display:flex; flex-direction:column; gap:.35rem; font-weight:700; }
   }
   .product-grid{
     margin-top:0;
-    grid-template-columns:repeat(2, minmax(160px, 1fr));
+    grid-template-columns:repeat(auto-fit, minmax(250px, 1fr));
     gap:1rem;
+    justify-content:center;
   }
 }
 
@@ -603,8 +604,9 @@ label{ display:flex; flex-direction:column; gap:.35rem; font-weight:700; }
     font-size:1.05rem;
   }
   .product-grid{
-    grid-template-columns:repeat(2, minmax(160px, 1fr));
+    grid-template-columns:repeat(auto-fit, minmax(250px, 1fr));
     gap:1rem;
+    justify-content:center;
   }
   .product-detail{
     grid-template-columns:1fr;
@@ -659,9 +661,10 @@ label{ display:flex; flex-direction:column; gap:.35rem; font-weight:700; }
     flex:1 1 48px;
   }
   .product-grid{
-    grid-template-columns:repeat(2, minmax(160px, 1fr));
+    grid-template-columns:repeat(auto-fit, minmax(250px, 1fr));
     gap:1rem;
     margin-top:0;
+    justify-content:center;
   }
   .modal .modal-body{
     width:calc(100% - 1.5rem);
