@@ -565,6 +565,9 @@ label{ display:flex; flex-direction:column; gap:.35rem; font-weight:700; }
     align-items:stretch;
     gap:.65rem;
   }
+  .product-grid{
+    margin-top:.5rem;
+  }
   .product-filters{
     width:100%;
     flex-wrap:nowrap;
