@@ -594,7 +594,10 @@ label{ display:flex; flex-direction:column; gap:.35rem; font-weight:700; }
   .product-grid{
     margin-top:0;
     grid-template-columns:repeat(2, minmax(0, 1fr));
-    gap:.75rem;
+    max-width:600px;
+    margin-inline:auto;
+    gap:1rem;
+    justify-content:center;
   }
   .product-grid .card{
     width:100%;
@@ -608,7 +611,10 @@ label{ display:flex; flex-direction:column; gap:.35rem; font-weight:700; }
   }
   .product-grid{
     grid-template-columns:repeat(2, minmax(0, 1fr));
-    gap:.75rem;
+    max-width:600px;
+    margin-inline:auto;
+    gap:1rem;
+    justify-content:center;
   }
   .product-detail{
     grid-template-columns:1fr;
@@ -664,7 +670,10 @@ label{ display:flex; flex-direction:column; gap:.35rem; font-weight:700; }
   }
   .product-grid{
     grid-template-columns:repeat(2, minmax(0, 1fr));
-    gap:.75rem;
+    max-width:600px;
+    margin-inline:auto;
+    gap:1rem;
+    justify-content:center;
     margin-top:0;
   }
   .modal .modal-body{
