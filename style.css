@@ -184,7 +184,7 @@ label{ display:flex; flex-direction:column; gap:.35rem; font-weight:700; }
    ========================= */
 .app-main{ padding:1rem; }
 .products h2{ margin:0; }
-.product-grid{ display:grid; gap:1rem; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); justify-content:center; }
+.product-grid{ display:grid; gap:1rem; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); }
 /* Product filters toolbar */
 .products-header{
   display:flex;
@@ -594,10 +594,11 @@ label{ display:flex; flex-direction:column; gap:.35rem; font-weight:700; }
   .product-grid{
     margin-top:0;
     grid-template-columns:repeat(2, minmax(0, 1fr));
-    gap:.85rem;
+    gap:.75rem;
   }
   .product-grid .card{
     width:100%;
+    padding:.65rem;
   }
 }
 
@@ -607,7 +608,7 @@ label{ display:flex; flex-direction:column; gap:.35rem; font-weight:700; }
   }
   .product-grid{
     grid-template-columns:repeat(2, minmax(0, 1fr));
-    gap:.85rem;
+    gap:.75rem;
   }
   .product-detail{
     grid-template-columns:1fr;
@@ -663,7 +664,7 @@ label{ display:flex; flex-direction:column; gap:.35rem; font-weight:700; }
   }
   .product-grid{
     grid-template-columns:repeat(2, minmax(0, 1fr));
-    gap:.85rem;
+    gap:.75rem;
     margin-top:0;
   }
   .modal .modal-body{
