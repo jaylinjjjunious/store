@@ -551,10 +551,14 @@ label{ display:flex; flex-direction:column; gap:.35rem; font-weight:700; }
 
 @media (max-width: 680px){
   .app-main{
-    padding:.75rem;
+    padding:.35rem .75rem .75rem;
   }
   .carousel-wrap{
-    padding:.75rem;
+    padding:.5rem .75rem .35rem;
+    margin-bottom:0;
+  }
+  .products{
+    margin-top:0;
   }
   .products-header{
     flex-direction:column;
@@ -568,6 +572,9 @@ label{ display:flex; flex-direction:column; gap:.35rem; font-weight:700; }
     gap:.4rem;
     overflow-x:auto;
     -webkit-overflow-scrolling:touch;
+  }
+  .products h2{
+    margin-bottom:.35rem;
   }
   .product-filters::-webkit-scrollbar{
     display:none;
