@@ -1065,7 +1065,8 @@ function initHeaderAutoHide(){
   const header = document.querySelector(".app-header");
   if (!header) return;
   const media = window.matchMedia("(max-width: 720px)");
-  let lastScrollY = window.scrollY;
+  const getScrollY = ()=> window.scrollY ?? document.documentElement.scrollTop ?? 0;
+  let lastScrollY = getScrollY();
   let ticking = false;
   let mobileApplied = false;
 
@@ -1073,7 +1074,8 @@ function initHeaderAutoHide(){
     if (mobileApplied) return;
     mobileApplied = true;
     header.classList.add("mobile-autohide");
-    document.body.style.paddingTop = `${header.offsetHeight}px`;
+    const safeTop = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--safe-area-inset-top') || 0, 10) || 0;
+    document.body.style.paddingTop = `${header.offsetHeight + safeTop}px`;
   };
   const disableMobileMode = ()=>{
     if (!mobileApplied) return;
@@ -1087,11 +1089,11 @@ function initHeaderAutoHide(){
     ticking = false;
     if (!media.matches){
       disableMobileMode();
-      lastScrollY = window.scrollY;
+      lastScrollY = getScrollY();
       return;
     }
     enableMobileMode();
-    const current = window.scrollY;
+    const current = getScrollY();
     if (current <= 0){
       header.classList.remove("hide");
     } else if (current > lastScrollY + 6){
@@ -1113,7 +1115,7 @@ function initHeaderAutoHide(){
 
   const onChange = ()=>{
     disableMobileMode();
-    lastScrollY = window.scrollY;
+    lastScrollY = getScrollY();
     update();
   };
   if (typeof media.addEventListener === "function") media.addEventListener("change", onChange);
