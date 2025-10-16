@@ -1064,100 +1064,97 @@ const addBundleBtn = $("#addBundleBtn"); if (addBundleBtn) addBundleBtn.addEvent
 function initHeaderAutoHide(){
   const header = document.querySelector(".app-header");
   if (!header) return;
+
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const mobileMedia = window.matchMedia("(max-width: 720px)");
+
   const getSafeTop = ()=>{
     const val = getComputedStyle(document.documentElement).getPropertyValue("--safe-area-top");
     const parsed = parseFloat(val);
     return Number.isNaN(parsed) ? 0 : parsed;
   };
 
-  let headerHeight = header.offsetHeight;
-  let safeTop = getSafeTop();
-
-  const getScrollY = ()=> (typeof window.pageYOffset === "number")
-    ? window.pageYOffset
-    : Math.max(document.documentElement?.scrollTop || 0, document.body?.scrollTop || 0, 0);
-
-  let lastScrollY = getScrollY();
-  let ticking = false;
-  const threshold = 6;
-  let autoHideEnabled = false;
-
-  const shouldEnable = ()=> !prefersReducedMotion.matches && window.innerWidth <= 720;
-
-  const applyBodyOffset = ()=>{
-    headerHeight = header.offsetHeight;
-    safeTop = getSafeTop();
-    if (autoHideEnabled){
-      document.body.style.paddingTop = `${headerHeight + safeTop}px`;
-    } else {
-      document.body.style.paddingTop = "";
-    }
+  const getScrollY = ()=>{
+    if (typeof window.pageYOffset === "number") return window.pageYOffset;
+    return Math.max(document.documentElement?.scrollTop || 0, document.body?.scrollTop || 0, 0);
   };
 
-  const ensureMode = ()=>{
-    const enable = shouldEnable();
-    if (autoHideEnabled === enable) return;
-    autoHideEnabled = enable;
-    header.classList.toggle("autohide", autoHideEnabled);
-    if (!autoHideEnabled){
+  const state = {
+    enabled: false,
+    lastY: getScrollY(),
+    ticking: false,
+    headerHeight: header.offsetHeight
+  };
+
+  const applyBodyOffset = ()=>{
+    state.headerHeight = header.offsetHeight;
+    const safeTop = getSafeTop();
+    document.body.style.paddingTop = state.enabled ? `${state.headerHeight + safeTop}px` : "";
+  };
+
+  const syncEnabled = ()=>{
+    const shouldEnable = mobileMedia.matches && !prefersReducedMotion.matches;
+    if (state.enabled === shouldEnable) return;
+    state.enabled = shouldEnable;
+    header.classList.toggle("autohide", state.enabled);
+    if (!state.enabled){
       header.classList.remove("hide");
     }
     applyBodyOffset();
-    lastScrollY = getScrollY();
+    state.lastY = getScrollY();
   };
 
   const update = ()=>{
-    ticking = false;
-    ensureMode();
-    if (!autoHideEnabled) return;
+    state.ticking = false;
+    if (!state.enabled) return;
     const current = getScrollY();
-    const delta = current - lastScrollY;
-    if (Math.abs(delta) <= threshold){
-      lastScrollY = current;
+    const delta = current - state.lastY;
+    if (Math.abs(delta) <= 6){
+      state.lastY = current;
       return;
     }
-    if (current <= headerHeight + safeTop){
+    const threshold = Math.max(40, state.headerHeight * 0.6);
+    if (current <= threshold){
       header.classList.remove("hide");
     } else if (delta > 0){
       header.classList.add("hide");
     } else {
       header.classList.remove("hide");
     }
-    lastScrollY = current;
+    state.lastY = current;
   };
 
   const onScroll = ()=>{
-    if (!ticking){
-      ticking = true;
+    if (!state.enabled) return;
+    if (!state.ticking){
+      state.ticking = true;
       requestAnimationFrame(update);
     }
   };
 
+  const handleMediaChange = ()=>{
+    syncEnabled();
+    header.classList.remove("hide");
+  };
+
   window.addEventListener("scroll", onScroll, { passive: true });
   window.addEventListener("resize", ()=>{
-    ensureMode();
-    if (autoHideEnabled){
-      header.classList.remove("hide");
-      lastScrollY = getScrollY();
-      applyBodyOffset();
-    }
+    syncEnabled();
+    applyBodyOffset();
   });
   window.addEventListener("load", ()=>{
-    ensureMode();
-    if (autoHideEnabled) applyBodyOffset();
+    syncEnabled();
+    applyBodyOffset();
   }, { once: true });
-  if (typeof prefersReducedMotion.addEventListener === "function") prefersReducedMotion.addEventListener("change", ()=>{
-    ensureMode();
-    header.classList.remove("hide");
-  });
-  else if (typeof prefersReducedMotion.addListener === "function") prefersReducedMotion.addListener(()=>{
-    ensureMode();
-    header.classList.remove("hide");
-  });
 
-  ensureMode();
-  header.classList.toggle("autohide", autoHideEnabled);
+  if (typeof mobileMedia.addEventListener === "function") mobileMedia.addEventListener("change", handleMediaChange);
+  else if (typeof mobileMedia.addListener === "function") mobileMedia.addListener(handleMediaChange);
+
+  if (typeof prefersReducedMotion.addEventListener === "function") prefersReducedMotion.addEventListener("change", handleMediaChange);
+  else if (typeof prefersReducedMotion.addListener === "function") prefersReducedMotion.addListener(handleMediaChange);
+
+  syncEnabled();
+  applyBodyOffset();
   update();
 }
 
