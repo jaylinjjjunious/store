@@ -712,3 +712,20 @@ label{ display:flex; flex-direction:column; gap:.35rem; font-weight:700; }
     max-height:78vh;
   }
 }
+
+/* Prevent horizontal scroll in inventory tab */
+#admin-inventory .panel{
+  overflow-x:hidden;
+}
+#admin-inventory .table-wrap{
+  overflow-x:auto;
+}
+@media (max-width:640px){
+  #admin-inventory .table-wrap{
+    overflow-x:auto;
+    padding-bottom:.5rem;
+  }
+  #admin-inventory .table-wrap table{
+    min-width:560px;
+  }
+}
