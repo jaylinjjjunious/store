@@ -1070,29 +1070,18 @@ function initHeaderAutoHide(){
   let ticking = false;
   let mobileApplied = false;
 
-  const enableMobileMode = ()=>{
-    if (mobileApplied) return;
-    mobileApplied = true;
-    header.classList.add("mobile-autohide");
-    const safeTop = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--safe-area-inset-top') || 0, 10) || 0;
-    document.body.style.paddingTop = `${header.offsetHeight + safeTop}px`;
-  };
-  const disableMobileMode = ()=>{
-    if (!mobileApplied) return;
-    mobileApplied = false;
-    header.classList.remove("mobile-autohide");
-    header.classList.remove("hide");
-    document.body.style.paddingTop = "";
-  };
-
   const update = ()=>{
     ticking = false;
     if (!media.matches){
-      disableMobileMode();
+      header.classList.remove("mobile-autohide");
+      header.classList.remove("hide");
       lastScrollY = getScrollY();
       return;
     }
-    enableMobileMode();
+    if (!mobileApplied){
+      mobileApplied = true;
+      header.classList.add("mobile-autohide");
+    }
     const current = getScrollY();
     const delta = current - lastScrollY;
     const threshold = 2;
@@ -1116,7 +1105,9 @@ function initHeaderAutoHide(){
   window.addEventListener("scroll", onScroll, { passive: true });
 
   const onChange = ()=>{
-    disableMobileMode();
+    header.classList.remove("mobile-autohide");
+    header.classList.remove("hide");
+    mobileApplied = false;
     lastScrollY = getScrollY();
     update();
   };
@@ -1143,19 +1134,24 @@ $("#settingsTabs").addEventListener("click",(e)=>{
 /* =========================
    Init
    ========================= */
-(function init(){
-  applyTheme();
-  renderProducts();
-  renderCart();
-  renderCartBadge();
-  setupCarousel();
-  autoClearHistory();
-  initHeaderAutoHide();
-  // run quick smoke tests after a short delay so the DOM stabilizes
-  setTimeout(()=>{
-    try { smokeTest(); } catch(e){ console.error('smokeTest failed', e); }
-  }, 350);
-})();
+  function init(){
+    applyTheme();
+    renderProducts();
+    renderCart();
+    renderCartBadge();
+    setupCarousel();
+    autoClearHistory();
+    initHeaderAutoHide();
+    // run quick smoke tests after a short delay so the DOM stabilizes
+    setTimeout(()=>{
+      try { smokeTest(); } catch(e){ console.error('smokeTest failed', e); }
+    }, 350);
+  }
+  if (document.readyState === "complete" || document.readyState === "interactive"){
+    requestAnimationFrame(init);
+  } else {
+    document.addEventListener("DOMContentLoaded", init, { once:true });
+  }
 
 /* =========================
    Smoke tests (basic layout / behavior checks)
