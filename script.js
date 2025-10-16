@@ -333,43 +333,103 @@ function renderCart(){
   });
   renderLoyaltyStatus();
 }
+const loyaltyMedia = window.matchMedia("(max-width: 720px)");
+let loyaltyNoticeTimer = null;
+if (typeof loyaltyMedia.addEventListener === "function"){
+  loyaltyMedia.addEventListener("change", e=>{ if (!e.matches) hideLoyaltyNotice(); });
+} else if (typeof loyaltyMedia.addListener === "function"){
+  loyaltyMedia.addListener(e=>{ if (!e.matches) hideLoyaltyNotice(); });
+}
+
 function renderLoyaltyStatus(){
   store.loyaltyPoints = clampPoints(store.loyaltyPoints || 0);
-  const points = store.loyaltyPoints;
+  updateLoyaltyNotice();
+}
+
+function updateLoyaltyNotice(){
+  const notice = $("#loyaltyNotice");
+  if (!notice) return;
+  const points = clampPoints(store.loyaltyPoints || 0);
   const capped = Math.min(points, REWARD_THRESHOLD);
-  const chip = $("#loyaltyChip");
-  if (chip){
-    chip.textContent = points >= REWARD_THRESHOLD ? `Reward ready (${points} pts)` : `${points} / ${REWARD_THRESHOLD} pts`;
-    chip.classList.toggle("ready", points >= REWARD_THRESHOLD);
-  }
-  const label = $("#loyaltyPointsLabel");
-  if (label) label.textContent = `${points} pts`;
-  const progressText = $("#loyaltyProgressText");
-  if (progressText) progressText.textContent = `${capped} / ${REWARD_THRESHOLD} points`;
-  const fill = $("#loyaltyProgressFill");
+  const needed = remainingToReward();
+  const fill = $("#loyaltyNoticeFill");
   if (fill){
     const pct = REWARD_THRESHOLD === 0 ? 0 : (capped / REWARD_THRESHOLD) * 100;
     fill.style.width = `${pct}%`;
   }
-  const message = $("#loyaltyMessage");
-  if (message){
-    if (points >= REWARD_THRESHOLD){
-      message.textContent = hasRewardInCart() ? "Free snack added to your cart — enjoy!" : "You’ve unlocked a free snack! Tap redeem to pick it.";
-    } else {
-      const needed = remainingToReward();
-      message.textContent = `Earn ${needed} more point${needed===1?"":"s"} to unlock a free snack.`;
-    }
+  const pointsEl = $("#loyaltyNoticePoints");
+  if (pointsEl) pointsEl.textContent = `${capped} / ${REWARD_THRESHOLD} pts`;
+  const messageEl = $("#loyaltyNoticeMessage");
+  if (messageEl && !messageEl.dataset.locked){
+    messageEl.textContent = points >= REWARD_THRESHOLD
+      ? (hasRewardInCart() ? "Your free snack is waiting in the cart." : "You can redeem a free snack now.")
+      : `Earn ${needed} more point${needed===1?"":"s"} to unlock a free snack.`;
   }
-  const panel = $("#loyaltyPanel");
-  if (panel) panel.classList.toggle("ready", points >= REWARD_THRESHOLD);
-  const redeemBtn = $("#redeemRewardBtn");
+  const titleEl = $("#loyaltyNoticeTitle");
+  if (titleEl && !titleEl.dataset.locked){
+    titleEl.textContent = points >= REWARD_THRESHOLD ? "Reward ready" : "Rewards update";
+  }
+  const redeemBtn = $("#loyaltyNoticeRedeem");
   if (redeemBtn){
     const eligible = points >= REWARD_THRESHOLD && !hasRewardInCart();
     redeemBtn.disabled = !eligible;
     redeemBtn.textContent = hasRewardInCart() ? "Reward in cart" : "Redeem free snack";
   }
 }
+
+function showLoyaltyNotice(reason){
+  if (!loyaltyMedia.matches) return;
+  const notice = $("#loyaltyNotice");
+  if (!notice) return;
+  updateLoyaltyNotice();
+  const titleEl = $("#loyaltyNoticeTitle");
+  const messageEl = $("#loyaltyNoticeMessage");
+  if (titleEl){
+    titleEl.dataset.locked = "true";
+    titleEl.textContent = reason === "unlocked" ? "Reward unlocked!" : reason === "redeem" ? "Reward added" : "Points added";
+  }
+  if (messageEl){
+    messageEl.dataset.locked = "true";
+    if (reason === "unlocked"){
+      messageEl.textContent = "You just hit 50 points! Tap redeem to pick your free snack.";
+    } else if (reason === "redeem"){
+      messageEl.textContent = "Free snack moved into your cart. Checkout to enjoy it!";
+    } else {
+      const remaining = remainingToReward();
+      messageEl.textContent = remaining === 0
+        ? "You're ready to redeem a free snack."
+        : `+${REWARD_POINTS_PER_ORDER} points added. Just ${remaining} to go!`;
+    }
+  }
+  if (reason === "unlocked"){
+    notice.classList.add("celebrate");
+  } else {
+    notice.classList.remove("celebrate");
+  }
+  notice.classList.add("visible");
+  clearTimeout(loyaltyNoticeTimer);
+  loyaltyNoticeTimer = setTimeout(()=> hideLoyaltyNotice(), 5200);
+}
+
+function hideLoyaltyNotice(){
+  const notice = $("#loyaltyNotice");
+  if (!notice) return;
+  notice.classList.remove("visible");
+  notice.classList.remove("celebrate");
+  if (loyaltyNoticeTimer){
+    clearTimeout(loyaltyNoticeTimer);
+    loyaltyNoticeTimer = null;
+  }
+  const titleEl = $("#loyaltyNoticeTitle");
+  const messageEl = $("#loyaltyNoticeMessage");
+  if (titleEl) delete titleEl.dataset.locked;
+  if (messageEl) delete messageEl.dataset.locked;
+  // refresh default copy
+  updateLoyaltyNotice();
+}
+
 function openRewardModal(){
+  hideLoyaltyNotice();
   if (store.loyaltyPoints < REWARD_THRESHOLD || hasRewardInCart()){
     openModal("cartModal");
     return;
@@ -451,6 +511,7 @@ function addRewardToCart(productId){
   closeModal("rewardModal");
   openModal("cartModal");
   showToast(`🎉 Free ${product.name} added!`);
+  showLoyaltyNotice("redeem");
 }
 function changeCartQty(index, delta){
   const line = store.cart[index];
@@ -470,6 +531,7 @@ function changeCartQty(index, delta){
     renderCartBadge();
     renderCart();
     showToast("Reward removed — points refunded.");
+    showLoyaltyNotice("earned");
     return;
   }
   if (line.id && String(line.id).startsWith("bundle:")){
@@ -522,12 +584,17 @@ if (applyPromoBtn) applyPromoBtn.onclick = ()=>{
   $("#promoInput").value = "";
 };
 
-const redeemRewardBtn = $("#redeemRewardBtn");
-if (redeemRewardBtn){
-  redeemRewardBtn.addEventListener("click", ()=>{
-    if (redeemRewardBtn.disabled) return;
+const loyaltyNoticeRedeem = $("#loyaltyNoticeRedeem");
+if (loyaltyNoticeRedeem){
+  loyaltyNoticeRedeem.addEventListener("click", ()=>{
+    if (loyaltyNoticeRedeem.disabled) return;
+    hideLoyaltyNotice();
     openRewardModal();
   });
+}
+const loyaltyNoticeClose = $("#loyaltyNoticeClose");
+if (loyaltyNoticeClose){
+  loyaltyNoticeClose.addEventListener("click", hideLoyaltyNotice);
 }
 
 /* Checkout flow */
@@ -572,6 +639,7 @@ if (placeOrderBtn) placeOrderBtn.onclick = ()=>{
   const unlockedNow = prevPoints < REWARD_THRESHOLD && store.loyaltyPoints >= REWARD_THRESHOLD;
   showToast(unlockedNow ? `🎉 Reward unlocked! (+${earnedPoints} pts)` : `✅ Order placed (+${earnedPoints} pts)`);
   renderLoyaltyStatus();
+  showLoyaltyNotice(unlockedNow ? "unlocked" : "earned");
 
   if (!$("#adminContent").classList.contains("hidden")){
     renderOrders();

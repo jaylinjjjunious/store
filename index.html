@@ -18,8 +18,6 @@
       <button id="searchBtn" class="btn">Search</button>
     </div>
 
-    <div class="loyalty-chip" id="loyaltyChip" aria-live="polite">Rewards</div>
-
     <div class="actions">
       <button id="settingsBtn" class="btn" title="Settings">⚙️</button>
       <button id="cartBtn" class="btn cart-button" title="Cart">🛒
@@ -27,6 +25,25 @@
       </button>
     </div>
   </header>
+
+  <div class="loyalty-notice" id="loyaltyNotice" aria-live="polite">
+    <div class="ln-inner">
+      <div class="ln-head">
+        <span id="loyaltyNoticeTitle">Rewards update</span>
+        <button class="ln-close" id="loyaltyNoticeClose" aria-label="Dismiss">✕</button>
+      </div>
+      <p id="loyaltyNoticeMessage" class="muted small">Collect points with every order to earn a free snack.</p>
+      <div class="loyalty-progress">
+        <div class="loyalty-progress-bar">
+          <div class="loyalty-progress-fill" id="loyaltyNoticeFill"></div>
+        </div>
+      </div>
+      <div class="ln-footer">
+        <span id="loyaltyNoticePoints" class="muted small">0 / 50 pts</span>
+        <button id="loyaltyNoticeRedeem" class="btn primary" disabled>Redeem free snack</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Carousel -->
   <section class="carousel-wrap">
@@ -108,20 +125,6 @@
           <button id="checkoutBtn" class="btn primary">Checkout</button>
         </div>
       </div>
-      <section class="loyalty-panel" id="loyaltyPanel">
-        <div class="loyalty-head">
-          <h4>Rewards</h4>
-          <span id="loyaltyPointsLabel" class="muted">0 pts</span>
-        </div>
-        <div class="loyalty-progress">
-          <div class="loyalty-progress-bar">
-            <div class="loyalty-progress-fill" id="loyaltyProgressFill"></div>
-          </div>
-          <span id="loyaltyProgressText" class="muted">0 / 50 points</span>
-        </div>
-        <button id="redeemRewardBtn" class="btn primary" disabled>Redeem free snack</button>
-        <div id="loyaltyMessage" class="muted loyalty-message"></div>
-      </section>
       <div class="promo-row">
         <input id="promoInput" type="text" placeholder="Promo code"/>
         <button id="applyPromoBtn" class="btn">Apply</button>
