@@ -1094,11 +1094,13 @@ function initHeaderAutoHide(){
     }
     enableMobileMode();
     const current = getScrollY();
+    const delta = current - lastScrollY;
+    const threshold = 2;
     if (current <= 0){
       header.classList.remove("hide");
-    } else if (current > lastScrollY + 6){
+    } else if (delta > threshold && current > 40){
       header.classList.add("hide");
-    } else if (current < lastScrollY - 6){
+    } else if (delta < -threshold){
       header.classList.remove("hide");
     }
     lastScrollY = current;
