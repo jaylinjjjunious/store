@@ -1303,6 +1303,7 @@ function initHeaderAutoHide(){
 
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   const mobileMedia = window.matchMedia("(max-width: 720px)");
+  const scrollRoot = document.scrollingElement || document.documentElement;
 
   const getSafeTop = ()=>{
     const val = getComputedStyle(document.documentElement).getPropertyValue("--safe-area-top");
@@ -1310,10 +1311,7 @@ function initHeaderAutoHide(){
     return Number.isNaN(parsed) ? 0 : parsed;
   };
 
-  const getScrollY = ()=>{
-    if (typeof window.pageYOffset === "number") return window.pageYOffset;
-    return Math.max(document.documentElement?.scrollTop || 0, document.body?.scrollTop || 0, 0);
-  };
+  const getScrollY = ()=> scrollRoot.scrollTop || 0;
 
   const state = {
     enabled: false,
@@ -1328,15 +1326,19 @@ function initHeaderAutoHide(){
     document.body.style.paddingTop = state.enabled ? `${state.headerHeight + safeTop}px` : "";
   };
 
+  const shouldEnable = ()=> mobileMedia.matches && !prefersReducedMotion.matches;
+
   const syncEnabled = ()=>{
-    const shouldEnable = mobileMedia.matches && !prefersReducedMotion.matches;
-    if (state.enabled === shouldEnable) return;
-    state.enabled = shouldEnable;
+    const enable = shouldEnable();
+    if (state.enabled === enable) return;
+    state.enabled = enable;
     header.classList.toggle("autohide", state.enabled);
     if (!state.enabled){
       header.classList.remove("hide");
+      document.body.style.paddingTop = "";
+    } else {
+      applyBodyOffset();
     }
-    applyBodyOffset();
     state.lastY = getScrollY();
   };
 
@@ -1345,19 +1347,22 @@ function initHeaderAutoHide(){
     if (!state.enabled) return;
     const current = getScrollY();
     const delta = current - state.lastY;
-    if (Math.abs(delta) <= 6){
+    const absDelta = Math.abs(delta);
+    const hideThreshold = Math.max(24, state.headerHeight * 0.4);
+    if (current <= hideThreshold){
+      header.classList.remove("hide");
       state.lastY = current;
       return;
     }
-    const threshold = Math.max(40, state.headerHeight * 0.6);
-    if (current <= threshold){
-      header.classList.remove("hide");
-    } else if (delta > 0){
-      header.classList.add("hide");
-    } else {
-      header.classList.remove("hide");
+
+    if (absDelta > 4){
+      if (delta > 0){
+        header.classList.add("hide");
+      } else {
+        header.classList.remove("hide");
+      }
+      state.lastY = current;
     }
-    state.lastY = current;
   };
 
   const onScroll = ()=>{
