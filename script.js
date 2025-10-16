@@ -1059,6 +1059,54 @@ const addBundleBtn = $("#addBundleBtn"); if (addBundleBtn) addBundleBtn.addEvent
 });
 
 /* =========================
+   Mobile header auto hide
+   ========================= */
+function initHeaderAutoHide(){
+  const header = document.querySelector(".app-header");
+  if (!header) return;
+  const media = window.matchMedia("(max-width: 720px)");
+  let lastScrollY = window.scrollY;
+  let ticking = false;
+
+  const update = ()=>{
+    ticking = false;
+    if (!media.matches){
+      header.classList.remove("hide");
+      lastScrollY = window.scrollY;
+      return;
+    }
+    const current = window.scrollY;
+    if (current <= 0){
+      header.classList.remove("hide");
+    } else if (current > lastScrollY + 6){
+      header.classList.add("hide");
+    } else if (current < lastScrollY - 6){
+      header.classList.remove("hide");
+    }
+    lastScrollY = current;
+  };
+
+  const onScroll = ()=>{
+    if (!ticking){
+      ticking = true;
+      requestAnimationFrame(update);
+    }
+  };
+
+  window.addEventListener("scroll", onScroll, { passive: true });
+
+  const onChange = ()=>{
+    header.classList.remove("hide");
+    lastScrollY = window.scrollY;
+    update();
+  };
+  if (typeof media.addEventListener === "function") media.addEventListener("change", onChange);
+  else if (typeof media.addListener === "function") media.addListener(onChange);
+
+  update();
+}
+
+/* =========================
    Tabs (General/Admin)
    ========================= */
 $("#settingsTabs").addEventListener("click",(e)=>{
@@ -1082,6 +1130,7 @@ $("#settingsTabs").addEventListener("click",(e)=>{
   renderCartBadge();
   setupCarousel();
   autoClearHistory();
+  initHeaderAutoHide();
   // run quick smoke tests after a short delay so the DOM stabilizes
   setTimeout(()=>{
     try { smokeTest(); } catch(e){ console.error('smokeTest failed', e); }
