@@ -1067,14 +1067,30 @@ function initHeaderAutoHide(){
   const media = window.matchMedia("(max-width: 720px)");
   let lastScrollY = window.scrollY;
   let ticking = false;
+  let mobileApplied = false;
+
+  const enableMobileMode = ()=>{
+    if (mobileApplied) return;
+    mobileApplied = true;
+    header.classList.add("mobile-autohide");
+    document.body.style.paddingTop = `${header.offsetHeight}px`;
+  };
+  const disableMobileMode = ()=>{
+    if (!mobileApplied) return;
+    mobileApplied = false;
+    header.classList.remove("mobile-autohide");
+    header.classList.remove("hide");
+    document.body.style.paddingTop = "";
+  };
 
   const update = ()=>{
     ticking = false;
     if (!media.matches){
-      header.classList.remove("hide");
+      disableMobileMode();
       lastScrollY = window.scrollY;
       return;
     }
+    enableMobileMode();
     const current = window.scrollY;
     if (current <= 0){
       header.classList.remove("hide");
@@ -1096,7 +1112,7 @@ function initHeaderAutoHide(){
   window.addEventListener("scroll", onScroll, { passive: true });
 
   const onChange = ()=>{
-    header.classList.remove("hide");
+    disableMobileMode();
     lastScrollY = window.scrollY;
     update();
   };
