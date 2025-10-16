@@ -790,14 +790,15 @@ function renderInventory(){
     <tr data-id="${p.id}">
       <td>
         <div class="inv-name">
+          <button class="inv-name-save" data-name-save title="Save name" aria-label="Save item name">S</button>
           <input type="text" class="inv-name-input" value="${p.name}" aria-label="Item name"/>
         </div>
       </td>
       <td>
         <div class="inv-controls">
           <input type="number" class="inv-input" min="0" value="${p.stock}" aria-label="Stock for ${p.name}"/>
-          <button class="btn inv-zero" data-zero title="Set stock to zero">Zero</button>
-          <button class="inv-save-circle" data-save title="Save changes" aria-label="Save changes">S</button>
+          <button class="btn" data-zero title="Set stock to zero">Zero</button>
+          <button class="btn" data-save title="Save stock and status">Save</button>
         </div>
       </td>
       <td>
@@ -816,20 +817,28 @@ function renderInventory(){
     const input = $(".inv-input", tr);
     const zeroBtn = $("[data-zero]", tr);
     const saveBtn = $("[data-save]", tr);
+    const nameSaveBtn = $("[data-name-save]", tr);
     const statusSel = $(".inv-status", tr);
 
     if (zeroBtn) zeroBtn.onclick = ()=>{ input.value = 0; };
+    if (nameSaveBtn) nameSaveBtn.onclick = ()=>{
+      const p = store.products.find(x=>x.id===id);
+      if (!p || !nameInput) return;
+      const trimmed = nameInput.value.trim();
+      if (!trimmed){
+        nameInput.value = p.name;
+        nameInput.focus();
+        return;
+      }
+      p.name = trimmed;
+      persist();
+      renderProducts();
+      renderInventory();
+      showToast("💾 Name saved");
+    };
     if (saveBtn) saveBtn.onclick = ()=>{
       const p = store.products.find(x=>x.id===id);
       if (!p) return;
-      if (nameInput){
-        const trimmed = nameInput.value.trim();
-        if (trimmed){
-          p.name = trimmed;
-        } else {
-          nameInput.value = p.name;
-        }
-      }
       p.stock = Math.max(0, Number(input.value||0));
       p.status = statusSel.value;
       persist();
