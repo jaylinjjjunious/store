@@ -1064,8 +1064,10 @@ const addBundleBtn = $("#addBundleBtn"); if (addBundleBtn) addBundleBtn.addEvent
 function initHeaderAutoHide(){
   const header = document.querySelector(".app-header");
   if (!header) return;
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  if (prefersReducedMotion.matches) return;
 
+  const media = window.matchMedia("(max-width: 720px)");
   const getSafeTop = ()=>{
     const val = getComputedStyle(document.documentElement).getPropertyValue("--safe-area-top");
     const parsed = parseFloat(val);
@@ -1077,7 +1079,11 @@ function initHeaderAutoHide(){
   const applyBodyOffset = ()=>{
     headerHeight = header.offsetHeight;
     safeTop = getSafeTop();
-    document.body.style.paddingTop = `${headerHeight + safeTop}px`;
+    if (enabled){
+      document.body.style.paddingTop = `${headerHeight + safeTop}px`;
+    } else {
+      document.body.style.paddingTop = "";
+    }
   };
 
   const getScrollY = ()=> (typeof window.pageYOffset === "number")
@@ -1087,9 +1093,11 @@ function initHeaderAutoHide(){
   let lastScrollY = getScrollY();
   let ticking = false;
   const threshold = 6;
+  let enabled = false;
 
   const update = ()=>{
     ticking = false;
+    if (!enabled) return;
     const current = getScrollY();
     const delta = current - lastScrollY;
     if (Math.abs(delta) <= threshold){
@@ -1106,6 +1114,21 @@ function initHeaderAutoHide(){
     lastScrollY = current;
   };
 
+  const setEnabled = (shouldEnable)=>{
+    if (enabled === shouldEnable) return;
+    enabled = shouldEnable;
+    if (enabled){
+      header.classList.add("autohide");
+      applyBodyOffset();
+      lastScrollY = getScrollY();
+      header.classList.remove("hide");
+    } else {
+      header.classList.remove("autohide");
+      header.classList.remove("hide");
+      document.body.style.paddingTop = "";
+    }
+  };
+
   const onScroll = ()=>{
     if (!ticking){
       ticking = true;
@@ -1119,10 +1142,17 @@ function initHeaderAutoHide(){
     lastScrollY = getScrollY();
     header.classList.remove("hide");
   });
-  window.addEventListener("load", applyBodyOffset, { once: true });
+  window.addEventListener("load", ()=>{
+    if (enabled) applyBodyOffset();
+  }, { once: true });
+  const handleMediaChange = ()=> setEnabled(media.matches && !prefersReducedMotion.matches);
+  const handleMotionChange = ()=> setEnabled(media.matches && !prefersReducedMotion.matches);
+  if (typeof media.addEventListener === "function") media.addEventListener("change", handleMediaChange);
+  else if (typeof media.addListener === "function") media.addListener(handleMediaChange);
+  if (typeof prefersReducedMotion.addEventListener === "function") prefersReducedMotion.addEventListener("change", handleMotionChange);
+  else if (typeof prefersReducedMotion.addListener === "function") prefersReducedMotion.addListener(handleMotionChange);
 
-  header.classList.add("autohide");
-  applyBodyOffset();
+  setEnabled(media.matches);
   update();
 }
 
