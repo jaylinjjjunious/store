@@ -1059,19 +1059,17 @@ const addBundleBtn = $("#addBundleBtn"); if (addBundleBtn) addBundleBtn.addEvent
 });
 
 /* =========================
-   Mobile header auto hide
+   Header auto hide
    ========================= */
 function initHeaderAutoHide(){
   const header = document.querySelector(".app-header");
   if (!header) return;
-  const media = window.matchMedia("(max-width: 720px)");
   const getScrollY = ()=>{
     if (typeof window.pageYOffset === "number") return window.pageYOffset;
     return Math.max(document.documentElement?.scrollTop || 0, document.body?.scrollTop || 0, 0);
   };
   let lastScrollY = getScrollY();
   let ticking = false;
-  let mobileApplied = false;
   let headerHeight = header.offsetHeight;
 
   const getSafeTop = ()=>{
@@ -1085,24 +1083,8 @@ function initHeaderAutoHide(){
     document.body.style.paddingTop = `${headerHeight + getSafeTop()}px`;
   };
 
-  const clearBodyOffset = ()=>{
-    document.body.style.paddingTop = "";
-  };
-
   const update = ()=>{
     ticking = false;
-    if (!media.matches){
-      header.classList.remove("mobile-autohide");
-      header.classList.remove("hide");
-      clearBodyOffset();
-      mobileApplied = false;
-      lastScrollY = getScrollY();
-      return;
-    }
-    if (!mobileApplied){
-      mobileApplied = true;
-      header.classList.add("mobile-autohide");
-    }
     applyBodyOffset();
     const current = getScrollY();
     const delta = current - lastScrollY;
@@ -1126,23 +1108,12 @@ function initHeaderAutoHide(){
 
   window.addEventListener("scroll", onScroll, { passive: true });
   window.addEventListener("resize", ()=>{
-    if (media.matches){
-      applyBodyOffset();
-      lastScrollY = getScrollY();
-    }
+    applyBodyOffset();
+    lastScrollY = getScrollY();
+    header.classList.remove("hide");
   }, { passive: true });
 
-  const onChange = ()=>{
-    header.classList.remove("mobile-autohide");
-    header.classList.remove("hide");
-    mobileApplied = false;
-    clearBodyOffset();
-    lastScrollY = getScrollY();
-    update();
-  };
-  if (typeof media.addEventListener === "function") media.addEventListener("change", onChange);
-  else if (typeof media.addListener === "function") media.addListener(onChange);
-
+  header.classList.add("autohide");
   update();
 }
 

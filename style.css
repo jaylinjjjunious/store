@@ -130,7 +130,7 @@ label{ display:flex; flex-direction:column; gap:.35rem; font-weight:700; }
   opacity:0;
   pointer-events:none;
 }
-.app-header.mobile-autohide{
+.app-header.autohide{
   position:fixed;
   top:0;
   left:0;
