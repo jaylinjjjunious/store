@@ -788,12 +788,16 @@ function renderInventory(){
   if (!body){ console.warn('renderInventory: #invBody missing'); return; }
   body.innerHTML = store.products.map(p=>`
     <tr data-id="${p.id}">
-      <td>${p.name}</td>
+      <td>
+        <div class="inv-name">
+          <input type="text" class="inv-name-input" value="${p.name}" aria-label="Item name"/>
+        </div>
+      </td>
       <td>
         <div class="inv-controls">
-          <input type="number" class="inv-input" min="0" value="${p.stock}"/>
-          <button class="btn" data-zero>Zero</button>
-          <button class="btn" data-save>Save</button>
+          <input type="number" class="inv-input" min="0" value="${p.stock}" aria-label="Stock for ${p.name}"/>
+          <button class="btn inv-zero" data-zero title="Set stock to zero">Zero</button>
+          <button class="inv-save-circle" data-save title="Save changes" aria-label="Save changes">S</button>
         </div>
       </td>
       <td>
@@ -808,6 +812,7 @@ function renderInventory(){
 
   $$("#invBody tr").forEach(tr=>{
     const id = Number(tr.dataset.id);
+    const nameInput = $(".inv-name-input", tr);
     const input = $(".inv-input", tr);
     const zeroBtn = $("[data-zero]", tr);
     const saveBtn = $("[data-save]", tr);
@@ -817,10 +822,19 @@ function renderInventory(){
     if (saveBtn) saveBtn.onclick = ()=>{
       const p = store.products.find(x=>x.id===id);
       if (!p) return;
+      if (nameInput){
+        const trimmed = nameInput.value.trim();
+        if (trimmed){
+          p.name = trimmed;
+        } else {
+          nameInput.value = p.name;
+        }
+      }
       p.stock = Math.max(0, Number(input.value||0));
       p.status = statusSel.value;
       persist();
       renderProducts();
+      renderInventory();
       showToast("💾 Inventory saved");
     };
   });
