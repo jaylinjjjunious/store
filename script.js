@@ -1069,12 +1069,30 @@ function initHeaderAutoHide(){
   let lastScrollY = getScrollY();
   let ticking = false;
   let mobileApplied = false;
+  let headerHeight = header.offsetHeight;
+
+  const getSafeTop = ()=>{
+    const val = getComputedStyle(document.documentElement).getPropertyValue('--safe-area-top');
+    const parsed = parseFloat(val);
+    return Number.isNaN(parsed) ? 0 : parsed;
+  };
+
+  const applyBodyOffset = ()=>{
+    headerHeight = header.offsetHeight;
+    document.body.style.paddingTop = `${headerHeight + getSafeTop()}px`;
+  };
+
+  const clearBodyOffset = ()=>{
+    document.body.style.paddingTop = "";
+  };
 
   const update = ()=>{
     ticking = false;
     if (!media.matches){
       header.classList.remove("mobile-autohide");
       header.classList.remove("hide");
+      clearBodyOffset();
+      mobileApplied = false;
       lastScrollY = getScrollY();
       return;
     }
@@ -1082,12 +1100,13 @@ function initHeaderAutoHide(){
       mobileApplied = true;
       header.classList.add("mobile-autohide");
     }
+    applyBodyOffset();
     const current = getScrollY();
     const delta = current - lastScrollY;
     const threshold = 2;
     if (current <= 0){
       header.classList.remove("hide");
-    } else if (delta > threshold && current > 40){
+    } else if (delta > threshold && current > Math.max(40, headerHeight * 0.6)){
       header.classList.add("hide");
     } else if (delta < -threshold){
       header.classList.remove("hide");
@@ -1103,11 +1122,18 @@ function initHeaderAutoHide(){
   };
 
   window.addEventListener("scroll", onScroll, { passive: true });
+  window.addEventListener("resize", ()=>{
+    if (media.matches){
+      applyBodyOffset();
+      lastScrollY = getScrollY();
+    }
+  }, { passive: true });
 
   const onChange = ()=>{
     header.classList.remove("mobile-autohide");
     header.classList.remove("hide");
     mobileApplied = false;
+    clearBodyOffset();
     lastScrollY = getScrollY();
     update();
   };

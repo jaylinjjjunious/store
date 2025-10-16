@@ -6,6 +6,7 @@
     radial-gradient(1200px 800px at 85% 85%, #0d1116 0%, #07090f 35%, #07090f 100%);
   --text: #e9eef8;
   --muted:#98a0b0;
+  --safe-area-top: env(safe-area-inset-top, 0px);
 
   --brand:#4f8bff;
   --brand-2:#3b82f6;
@@ -125,9 +126,17 @@ label{ display:flex; flex-direction:column; gap:.35rem; font-weight:700; }
   transition:transform .25s ease, opacity .25s ease;
 }
 .app-header.hide{
-  transform:translateY(-120%);
+  transform:translateY(calc(-100% - var(--safe-area-top)));
   opacity:0;
   pointer-events:none;
+}
+.app-header.mobile-autohide{
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+  width:100%;
+  border-radius:0 0 22px 22px;
 }
 .brand h1{ color:#fff; text-shadow:0 1px 2px rgba(0,0,0,.25); font-size:1.2rem; }
 :root[data-theme="light"] .brand h1{ color:#0b0f17; }
