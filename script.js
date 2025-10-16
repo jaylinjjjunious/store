@@ -1065,7 +1065,10 @@ function initHeaderAutoHide(){
   const header = document.querySelector(".app-header");
   if (!header) return;
   const media = window.matchMedia("(max-width: 720px)");
-  const getScrollY = ()=> window.scrollY ?? document.documentElement.scrollTop ?? 0;
+  const getScrollY = ()=>{
+    if (typeof window.pageYOffset === "number") return window.pageYOffset;
+    return Math.max(document.documentElement?.scrollTop || 0, document.body?.scrollTop || 0, 0);
+  };
   let lastScrollY = getScrollY();
   let ticking = false;
   let mobileApplied = false;
