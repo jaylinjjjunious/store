@@ -1348,14 +1348,14 @@ function initHeaderAutoHide(){
     const current = getScrollY();
     const delta = current - state.lastY;
     const absDelta = Math.abs(delta);
-    const hideThreshold = Math.max(24, state.headerHeight * 0.4);
+    const hideThreshold = Math.max(12, state.headerHeight * 0.25);
     if (current <= hideThreshold){
       header.classList.remove("hide");
       state.lastY = current;
       return;
     }
 
-    if (absDelta > 4){
+    if (absDelta > 2){
       if (delta > 0){
         header.classList.add("hide");
       } else {
