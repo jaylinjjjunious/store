@@ -1064,36 +1064,43 @@ const addBundleBtn = $("#addBundleBtn"); if (addBundleBtn) addBundleBtn.addEvent
 function initHeaderAutoHide(){
   const header = document.querySelector(".app-header");
   if (!header) return;
-  const getScrollY = ()=>{
-    if (typeof window.pageYOffset === "number") return window.pageYOffset;
-    return Math.max(document.documentElement?.scrollTop || 0, document.body?.scrollTop || 0, 0);
-  };
-  let lastScrollY = getScrollY();
-  let ticking = false;
-  let headerHeight = header.offsetHeight;
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
   const getSafeTop = ()=>{
-    const val = getComputedStyle(document.documentElement).getPropertyValue('--safe-area-top');
+    const val = getComputedStyle(document.documentElement).getPropertyValue("--safe-area-top");
     const parsed = parseFloat(val);
     return Number.isNaN(parsed) ? 0 : parsed;
   };
 
+  let headerHeight = header.offsetHeight;
+  let safeTop = getSafeTop();
   const applyBodyOffset = ()=>{
     headerHeight = header.offsetHeight;
-    document.body.style.paddingTop = `${headerHeight + getSafeTop()}px`;
+    safeTop = getSafeTop();
+    document.body.style.paddingTop = `${headerHeight + safeTop}px`;
   };
+
+  const getScrollY = ()=> (typeof window.pageYOffset === "number")
+    ? window.pageYOffset
+    : Math.max(document.documentElement?.scrollTop || 0, document.body?.scrollTop || 0, 0);
+
+  let lastScrollY = getScrollY();
+  let ticking = false;
+  const threshold = 6;
 
   const update = ()=>{
     ticking = false;
-    applyBodyOffset();
     const current = getScrollY();
     const delta = current - lastScrollY;
-    const threshold = 2;
-    if (current <= 0){
+    if (Math.abs(delta) <= threshold){
+      lastScrollY = current;
+      return;
+    }
+    if (current <= headerHeight + safeTop){
       header.classList.remove("hide");
-    } else if (delta > threshold && current > Math.max(40, headerHeight * 0.6)){
+    } else if (delta > 0){
       header.classList.add("hide");
-    } else if (delta < -threshold){
+    } else {
       header.classList.remove("hide");
     }
     lastScrollY = current;
@@ -1111,9 +1118,11 @@ function initHeaderAutoHide(){
     applyBodyOffset();
     lastScrollY = getScrollY();
     header.classList.remove("hide");
-  }, { passive: true });
+  });
+  window.addEventListener("load", applyBodyOffset, { once: true });
 
   header.classList.add("autohide");
+  applyBodyOffset();
   update();
 }
 
