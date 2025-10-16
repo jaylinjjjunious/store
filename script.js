@@ -1350,14 +1350,14 @@ function initHeaderAutoHide(){
     const current = getScrollY();
     const delta = current - state.lastY;
     const absDelta = Math.abs(delta);
-    const hideThreshold = Math.max(12, state.headerHeight * 0.25);
+    const hideThreshold = Math.max(8, state.headerHeight * 0.15);
     if (current <= hideThreshold){
       header.classList.remove("hide");
       state.lastY = current;
       return;
     }
 
-    if (absDelta > 2){
+    if (absDelta > 1){
       if (delta > 0){
         header.classList.add("hide");
       } else {
@@ -1381,6 +1381,9 @@ function initHeaderAutoHide(){
   };
 
   window.addEventListener("scroll", onScroll, { passive: true });
+  if (scrollRoot && scrollRoot !== window && typeof scrollRoot.addEventListener === "function"){
+    scrollRoot.addEventListener("scroll", onScroll, { passive: true });
+  }
   window.addEventListener("resize", ()=>{
     syncEnabled();
     applyBodyOffset();
