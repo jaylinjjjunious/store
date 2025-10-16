@@ -528,6 +528,19 @@ label{ display:flex; flex-direction:column; gap:.35rem; font-weight:700; }
     width:34px;
     height:34px;
   }
+  .inv-controls{
+    flex-direction:column;
+    align-items:flex-start;
+    gap:.4rem;
+  }
+  .inv-controls .btn[data-zero]{
+    order:0;
+  }
+  .inv-controls .btn[data-save]{
+    order:1;
+    width:100%;
+    max-width:140px;
+  }
 }
 
 /* Analytics */
