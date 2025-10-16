@@ -2,6 +2,8 @@
    Data & State
    ========================= */
 const PASSWORD = "8tsb077";
+const REWARD_POINTS_PER_ORDER = 5;
+const REWARD_THRESHOLD = 50;
 
 const initialProducts = [
   { id: 1, name: "Protein Bar", desc: "Packed with energy.", price: 2.99, stock: 12, status: "in", img: "https://images.unsplash.com/photo-1576678927484-cc907957088c?q=80&w=1200&auto=format&fit=crop", category: 'snacks' },
@@ -45,6 +47,7 @@ const store = {
   ordersActive: JSON.parse(localStorage.getItem("ss_orders_active") || "[]"),
   ordersHistory: JSON.parse(localStorage.getItem("ss_orders_history") || "[]"),
   theme: localStorage.getItem("ss_theme") || "dark",
+  loyaltyPoints: Number(localStorage.getItem("ss_loyalty_points") || "0"),
   ui: {
     // UI filter state: default to 'all' when not set
     activeCategory: 'all',
@@ -76,6 +79,7 @@ function persist(){
   localStorage.setItem("ss_promos", JSON.stringify(store.promos));
   localStorage.setItem("ss_bundles", JSON.stringify(store.bundles));
   localStorage.setItem("ss_applied_promo", JSON.stringify(store.appliedPromo));
+  localStorage.setItem("ss_loyalty_points", String(store.loyaltyPoints || 0));
 }
 
 /* =========================
@@ -93,6 +97,13 @@ function showToast(msg="Order placed ✅"){
 }
 function nowTs(){ return Date.now(); }
 function daysBetween(a, b){ return Math.abs(a-b)/(1000*60*60*24); }
+function clampPoints(value){
+  const num = Number.isFinite(Number(value)) ? Number(value) : 0;
+  return Math.max(0, Math.round(num));
+}
+function rewardLine(){ return store.cart.find(item=>item && item.reward); }
+function hasRewardInCart(){ return Boolean(rewardLine()); }
+function remainingToReward(){ return Math.max(0, REWARD_THRESHOLD - (store.loyaltyPoints || 0)); }
 
 // session-only Admin unlock
 const ADMIN_SESSION_KEY = "ss_admin_unlocked_session";
@@ -261,20 +272,27 @@ function renderCart(){
     box.innerHTML = `<div class="muted">Your cart is empty.</div>`;
     const ct = $("#cartTotal"); if (ct) ct.textContent = money(0);
     const pm = $("#promoMsg"); if (pm) pm.textContent = "";
+    renderLoyaltyStatus();
     return;
   }
-  box.innerHTML = store.cart.map((c, idx)=>`
-    <div class="cart-row" data-idx="${idx}">
-      <span>${c.name}</span>
-      <span class="muted">x${c.qty}</span>
-      <span>${money(c.price)}</span>
+  box.innerHTML = store.cart.map((c, idx)=>{
+    const isReward = Boolean(c.reward);
+    const qtyLabel = isReward ? "Reward" : `x${c.qty}`;
+    const priceLabel = isReward ? "Free" : money(c.price);
+    const rowClass = `cart-row${isReward ? " reward-row" : ""}`;
+    const removeTitle = isReward ? "Remove reward" : "Less";
+    return `
+    <div class="${rowClass}" data-idx="${idx}"${isReward ? ' data-reward="true"' : ""}>
+      <span>${c.name}${isReward ? " 🎁" : ""}</span>
+      <span class="muted">${qtyLabel}</span>
+      <span class="${isReward ? "reward-price" : ""}">${priceLabel}</span>
       <div class="qty-controls">
-        <button class="btn qty-dec" title="Less">-</button>
-        <div class="qty">${c.qty}</div>
-        <button class="btn qty-inc" title="More">+</button>
+        <button class="btn qty-dec" title="${removeTitle}">${isReward ? "✕" : "-"}</button>
+        <div class="qty">${isReward ? 1 : c.qty}</div>
+        <button class="btn qty-inc"${isReward ? " disabled" : ""} title="More">+</button>
       </div>
-    </div>
-  `).join("");
+    </div>`;
+  }).join("");
 
   const total = store.cart.reduce((s,i)=> s + (i.price||0)*i.qty, 0);
   // compute discount if promo applied
@@ -313,10 +331,147 @@ function renderCart(){
     if (dec) dec.onclick = ()=> changeCartQty(idx, -1);
     if (inc) inc.onclick = ()=> changeCartQty(idx, +1);
   });
+  renderLoyaltyStatus();
+}
+function renderLoyaltyStatus(){
+  store.loyaltyPoints = clampPoints(store.loyaltyPoints || 0);
+  const points = store.loyaltyPoints;
+  const capped = Math.min(points, REWARD_THRESHOLD);
+  const chip = $("#loyaltyChip");
+  if (chip){
+    chip.textContent = points >= REWARD_THRESHOLD ? `Reward ready (${points} pts)` : `${points} / ${REWARD_THRESHOLD} pts`;
+    chip.classList.toggle("ready", points >= REWARD_THRESHOLD);
+  }
+  const label = $("#loyaltyPointsLabel");
+  if (label) label.textContent = `${points} pts`;
+  const progressText = $("#loyaltyProgressText");
+  if (progressText) progressText.textContent = `${capped} / ${REWARD_THRESHOLD} points`;
+  const fill = $("#loyaltyProgressFill");
+  if (fill){
+    const pct = REWARD_THRESHOLD === 0 ? 0 : (capped / REWARD_THRESHOLD) * 100;
+    fill.style.width = `${pct}%`;
+  }
+  const message = $("#loyaltyMessage");
+  if (message){
+    if (points >= REWARD_THRESHOLD){
+      message.textContent = hasRewardInCart() ? "Free snack added to your cart — enjoy!" : "You’ve unlocked a free snack! Tap redeem to pick it.";
+    } else {
+      const needed = remainingToReward();
+      message.textContent = `Earn ${needed} more point${needed===1?"":"s"} to unlock a free snack.`;
+    }
+  }
+  const panel = $("#loyaltyPanel");
+  if (panel) panel.classList.toggle("ready", points >= REWARD_THRESHOLD);
+  const redeemBtn = $("#redeemRewardBtn");
+  if (redeemBtn){
+    const eligible = points >= REWARD_THRESHOLD && !hasRewardInCart();
+    redeemBtn.disabled = !eligible;
+    redeemBtn.textContent = hasRewardInCart() ? "Reward in cart" : "Redeem free snack";
+  }
+}
+function openRewardModal(){
+  if (store.loyaltyPoints < REWARD_THRESHOLD || hasRewardInCart()){
+    openModal("cartModal");
+    return;
+  }
+  const list = $("#rewardList");
+  const empty = $("#rewardEmpty");
+  if (!list || !empty){
+    openModal("rewardModal");
+    return;
+  }
+  const snacks = store.products.filter(p=>{
+    const category = (p.category || "").toLowerCase();
+    return (category === "snacks" || category === "chips") && (p.stock || 0) > 0;
+  });
+  if (snacks.length){
+    list.innerHTML = snacks.map(p=>`
+      <div class="reward-card">
+        <img src="${p.img}" alt="${p.name}"/>
+        <div>
+          <h4>${p.name}</h4>
+          <p class="muted small">${p.desc || ""}</p>
+        </div>
+        <button class="btn primary" data-redeem="${p.id}">Redeem</button>
+      </div>
+    `).join("");
+    $$("#rewardList [data-redeem]").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const id = Number(btn.dataset.redeem);
+        addRewardToCart(id);
+      });
+    });
+  } else {
+    list.innerHTML = "";
+  }
+  empty.classList.toggle("hidden", snacks.length > 0);
+  list.classList.toggle("hidden", snacks.length === 0);
+  openModal("rewardModal");
+}
+function addRewardToCart(productId){
+  if ((store.loyaltyPoints || 0) < REWARD_THRESHOLD){
+    showToast("You need more points to redeem that.");
+    return;
+  }
+  if (hasRewardInCart()){
+    showToast("Reward already in cart.");
+    closeModal("rewardModal");
+    openModal("cartModal");
+    return;
+  }
+  const product = store.products.find(p=>p.id===productId);
+  if (!product){
+    showToast("Snack not found.");
+    return;
+  }
+  if ((product.stock || 0) <= 0){
+    showToast("That snack is out of stock.");
+    renderProducts();
+    return;
+  }
+
+  product.stock -= 1;
+  store.loyaltyPoints = clampPoints((store.loyaltyPoints || 0) - REWARD_THRESHOLD);
+  store.cart.push({
+    id:`reward:${product.id}`,
+    name:`${product.name} (Free)`,
+    price:0,
+    img:product.img,
+    qty:1,
+    reward:true,
+    productId:product.id
+  });
+
+  persist();
+  renderProducts();
+  renderCartBadge();
+  renderCart();
+  renderLoyaltyStatus();
+
+  closeModal("rewardModal");
+  openModal("cartModal");
+  showToast(`🎉 Free ${product.name} added!`);
 }
 function changeCartQty(index, delta){
   const line = store.cart[index];
   if (!line) return;
+  if (line.reward){
+    if (delta > 0){
+      return;
+    }
+    store.cart.splice(index, 1);
+    if (line.productId){
+      const prod = store.products.find(p=>p.id===line.productId);
+      if (prod) prod.stock += 1;
+    }
+    store.loyaltyPoints = clampPoints((store.loyaltyPoints || 0) + REWARD_THRESHOLD);
+    persist();
+    renderProducts();
+    renderCartBadge();
+    renderCart();
+    showToast("Reward removed — points refunded.");
+    return;
+  }
   if (line.id && String(line.id).startsWith("bundle:")){
     // bundles just inc/dec qty
     line.qty += (delta>0?1:-1);
@@ -367,6 +522,14 @@ if (applyPromoBtn) applyPromoBtn.onclick = ()=>{
   $("#promoInput").value = "";
 };
 
+const redeemRewardBtn = $("#redeemRewardBtn");
+if (redeemRewardBtn){
+  redeemRewardBtn.addEventListener("click", ()=>{
+    if (redeemRewardBtn.disabled) return;
+    openRewardModal();
+  });
+}
+
 /* Checkout flow */
 const checkoutBtn = $("#checkoutBtn"); if (checkoutBtn) checkoutBtn.onclick = ()=>{ closeModal("cartModal"); openModal("orderFormModal"); };
 const placeOrderBtn = $("#placeOrderBtn");
@@ -398,12 +561,17 @@ if (placeOrderBtn) placeOrderBtn.onclick = ()=>{
   store.cart = [];
   // clear applied promo after using
   store.appliedPromo = null;
+  const prevPoints = store.loyaltyPoints || 0;
+  const earnedPoints = REWARD_POINTS_PER_ORDER;
+  store.loyaltyPoints = clampPoints(prevPoints + earnedPoints);
   persist();
 
   renderCart();
   renderCartBadge();
   closeModal("orderFormModal");
-  showToast("✅ Order placed");
+  const unlockedNow = prevPoints < REWARD_THRESHOLD && store.loyaltyPoints >= REWARD_THRESHOLD;
+  showToast(unlockedNow ? `🎉 Reward unlocked! (+${earnedPoints} pts)` : `✅ Order placed (+${earnedPoints} pts)`);
+  renderLoyaltyStatus();
 
   if (!$("#adminContent").classList.contains("hidden")){
     renderOrders();
@@ -1180,6 +1348,7 @@ $("#settingsTabs").addEventListener("click",(e)=>{
     renderProducts();
     renderCart();
     renderCartBadge();
+    renderLoyaltyStatus();
     setupCarousel();
     autoClearHistory();
     initHeaderAutoHide();

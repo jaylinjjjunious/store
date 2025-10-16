@@ -10,13 +10,15 @@
   <!-- Header -->
   <header class="app-header">
     <div class="brand">
-      <h1>Student Store</h1>
+      <h1>mobile smacks</h1>
     </div>
 
     <div class="searchbar">
       <input id="searchInput" type="text" placeholder="Search products…"/>
       <button id="searchBtn" class="btn">Search</button>
     </div>
+
+    <div class="loyalty-chip" id="loyaltyChip" aria-live="polite">Rewards</div>
 
     <div class="actions">
       <button id="settingsBtn" class="btn" title="Settings">⚙️</button>
@@ -106,6 +108,20 @@
           <button id="checkoutBtn" class="btn primary">Checkout</button>
         </div>
       </div>
+      <section class="loyalty-panel" id="loyaltyPanel">
+        <div class="loyalty-head">
+          <h4>Rewards</h4>
+          <span id="loyaltyPointsLabel" class="muted">0 pts</span>
+        </div>
+        <div class="loyalty-progress">
+          <div class="loyalty-progress-bar">
+            <div class="loyalty-progress-fill" id="loyaltyProgressFill"></div>
+          </div>
+          <span id="loyaltyProgressText" class="muted">0 / 50 points</span>
+        </div>
+        <button id="redeemRewardBtn" class="btn primary" disabled>Redeem free snack</button>
+        <div id="loyaltyMessage" class="muted loyalty-message"></div>
+      </section>
       <div class="promo-row">
         <input id="promoInput" type="text" placeholder="Promo code"/>
         <button id="applyPromoBtn" class="btn">Apply</button>
@@ -117,6 +133,18 @@
           </div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Reward Selection Modal -->
+  <div class="modal" id="rewardModal" aria-hidden="true">
+    <div class="backdrop" data-close="rewardModal"></div>
+    <div class="modal-body reward">
+      <button class="modal-close" data-close="rewardModal" title="Close">✕</button>
+      <h3>Choose Your Free Snack</h3>
+      <p class="muted small">Pick any snack to redeem your 50 point reward.</p>
+      <div id="rewardList" class="reward-list"></div>
+      <div id="rewardEmpty" class="muted hidden">No snacks available right now — check back soon!</div>
     </div>
   </div>
 
