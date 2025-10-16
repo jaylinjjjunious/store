@@ -1303,15 +1303,22 @@ function initHeaderAutoHide(){
 
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   const mobileMedia = window.matchMedia("(max-width: 720px)");
-  const scrollRoot = document.scrollingElement || document.documentElement;
-
   const getSafeTop = ()=>{
     const val = getComputedStyle(document.documentElement).getPropertyValue("--safe-area-top");
     const parsed = parseFloat(val);
     return Number.isNaN(parsed) ? 0 : parsed;
   };
 
-  const getScrollY = ()=> scrollRoot.scrollTop || 0;
+  const getScrollY = ()=>{
+    if (typeof window.pageYOffset === "number") return window.pageYOffset;
+    const doc = document.documentElement;
+    const body = document.body;
+    return Math.max(
+      doc ? doc.scrollTop || 0 : 0,
+      body ? body.scrollTop || 0 : 0,
+      0
+    );
+  };
 
   const state = {
     enabled: false,
