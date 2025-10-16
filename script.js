@@ -1309,15 +1309,10 @@ function initHeaderAutoHide(){
     return Number.isNaN(parsed) ? 0 : parsed;
   };
 
+  const scrollRoot = document.scrollingElement || document.documentElement || document.body;
   const getScrollY = ()=>{
     if (typeof window.pageYOffset === "number") return window.pageYOffset;
-    const doc = document.documentElement;
-    const body = document.body;
-    return Math.max(
-      doc ? doc.scrollTop || 0 : 0,
-      body ? body.scrollTop || 0 : 0,
-      0
-    );
+    return scrollRoot ? scrollRoot.scrollTop || 0 : 0;
   };
 
   const state = {
